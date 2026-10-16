@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Perfil {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  criado_em DateTime @default(now())
+
+  @@map("perfis")
+}
+
+model Cliente {
+  id          String       @id @default(uuid())
+  nome        String
+  telefone    String
+  cidade      String
+  documento   String       // CPF / RG
+  endereco     String?      @db.Text
+  referencia   String?      @db.Text
+  quem_indicou String?      @db.Text
+  email        String?
+  blacklist       Boolean      @default(false)
+  observacoes     String?      @db.Text
+  foto_url        String?      @db.Text
+  documentos_urls String?      @db.Text
+  criado_em       DateTime     @default(now())
+  emprestimos    Emprestimo[]
+  cheques        Cheque[]
+
+  @@map("clientes")
+}
+
+model Emprestimo {
+  id               String   @id @default(uuid())
+  valor_emprestado Decimal  @db.Decimal(15, 2)
+  taxa_juros       Decimal  @db.Decimal(5, 2)
+  taxa_multa       Decimal  @db.Decimal(5, 2)
+  data_vencimento  DateTime @db.Date
+  status           String   @default("ativo")
+  cliente_id       String
+  cliente          Cliente  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  
+  // Novos campos
+  tipo_pagamento   String    @default("a_vista")
+  frequencia       String    @default("mensal")
+  data_inicio      DateTime  @default(now())
+  juros_atraso     Decimal   @db.Decimal(5, 2) @default(0.00)
+  // Juros de atraso cobrados POR DIA: "nenhum" | "percentual_dia" (% da parcela) | "fixo_dia" (R$)
+  atraso_tipo      String    @default("nenhum")
+  atraso_valor     Float     @default(0)
+  categoria        String    @default("Sem categoria")
+  observacoes              String?   @db.Text
+  data_prevista_pagamento  DateTime? @db.Date
+  parcelas                 Parcela[]
+  parceiro_id      String?
+  parceiro         Parceiro? @relation(fields: [parceiro_id], references: [id], onDelete: SetNull)
+
+  criado_em        DateTime @default(now())
+
+  @@map("emprestimos")
+}
+
+model Parceiro {
+  id          String       @id @default(uuid())
+  nome        String
+  telefone    String?
+  criado_em   DateTime     @default(now())
+  emprestimos Emprestimo[]
+  cheques     Cheque[]
+
+  @@map("parceiros")
+}
+
+model Parcela {
+  id              String     @id @default(uuid())
+  emprestimo_id   String
+  emprestimo      Emprestimo @relation(fields: [emprestimo_id], references: [id], onDelete: Cascade)
+  numero          Int
+  valor           Decimal    @db.Decimal(15, 2)
+  data_vencimento DateTime   @db.Date
+  status          String     @default("aberto") // aberto, pago, atrasado
+  data_pagamento  DateTime?  @db.Date
+  valor_pago      Decimal?   @db.Decimal(15, 2)
+  criado_em       DateTime   @default(now())
+
+  @@map("parcelas")
+}
+
+model Cheque {
+  // Controle de cheques
+  id               String   @id @default(uuid())
+  cliente_id       String?
+  cliente          Cliente? @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  parceiro_id      String?
+  parceiro         Parceiro? @relation(fields: [parceiro_id], references: [id], onDelete: SetNull)
+  titular          String?
+  banco            String?
+  valor            Decimal  @db.Decimal(15, 2)
+  taxa_desconto    Decimal? @db.Decimal(5, 2)
+  valor_liquido    Decimal? @db.Decimal(15, 2)
+  data_compensacao DateTime @db.Date
+  status           String   @default("em_maos")
+  foto_url         String?  @db.Text
+  observacoes      String?  @db.Text
+  criado_em        DateTime @default(now())
+
+  @@map("cheques")
+}
+
+
+// ── Mensagens WhatsApp editáveis ─────────────────────────────────────────────
+// Só existe linha aqui quando o usuário EDITA uma mensagem. Os textos padrão
+// vivem no código (src/lib/mensagens/catalogo.ts); "restaurar padrão" = apagar a linha.
+model MensagemTemplate {
+  id            String   @id @default(uuid())
+  chave         String   @unique
+  texto         String   @db.Text
+  ativo         Boolean  @default(true)
+  atualizado_em DateTime @updatedAt
+
+  @@map("mensagem_templates")
+}
+
+// Chave/valor para dados da base: pix_chave, pix_titular, empresa_nome, respostas_rapidas (JSON)
+model Configuracao {
+  chave         String   @id
+  valor         String   @db.Text
+  atualizado_em DateTime @updatedAt
+
+  @@map("configuracoes")
+}
+
+// Histórico de tudo que o sistema tentou enviar por WhatsApp
+model MensagemLog {
+  id         String   @id @default(uuid())
+  chave      String
+  telefone   String
+  cliente_id String?
+  parcela_id String?
+  texto      String   @db.Text
+  status     String   // enviado | falha | ignorado
+  erro       String?  @db.Text
+  criado_em  DateTime @default(now())
+
+  @@index([parcela_id, criado_em])
+  @@index([criado_em])
+  @@map("mensagem_logs")
+}

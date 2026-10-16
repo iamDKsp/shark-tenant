@@ -1,0 +1,414 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  
+  --border: #e2e8f0;
+  
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --font-geist-sans: var(--font-geist-sans), Inter, sans-serif;
+
+  /* ── Motion Design Tokens ── */
+  --duration-instant: 80ms;   /* Feedback tátil imediato (active/click) */
+  --duration-fast:    140ms;  /* Microinterações rápidas, hover, tooltips */
+  --duration-normal:  200ms;  /* Transições de abas, dropdowns, expansões */
+  --duration-moderate:260ms;  /* Modais, drawers mobile, banners */
+  --duration-complex: 340ms;  /* Overlays, revelação sequencial */
+
+  --ease-spring:        cubic-bezier(0.16, 1, 0.3, 1);    /* Desaceleração suave/orgânica (Entradas) */
+  --ease-exit:          cubic-bezier(0.7, 0, 0.84, 0);    /* Aceleração rápida para fora (Saídas) */
+  --ease-smooth:        cubic-bezier(0.2, 0, 0, 1);       /* Transições de layout e tamanho */
+  --ease-bounce-subtle: cubic-bezier(0.34, 1.3, 0.64, 1); /* Destaque sutil para badges/sucesso */
+}
+
+html {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+  min-height: 100vh;
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Base utility cards with glassmorphism */
+.premium-card {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-left: 3px solid rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--border);
+  border-left-color: rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Classe utilitária para borda esquerda em cards Tailwind */
+.card-accent {
+  border-left-width: 3px !important;
+  border-left-color: rgba(0, 0, 0, 0.13) !important;
+}
+
+/* Notificações — animações */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.animate-slide-up {
+  animation: slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes pulseOnce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.animate-pulse-once {
+  animation: pulseOnce 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+/*
+ * IMPORTANTE: usar `backwards` (e não `forwards`). Com `forwards` o elemento
+ * mantém `transform: scale(1)` ao final, e qualquer transform != none cria um
+ * novo containing block para descendentes `position: fixed`. Isso fazia os
+ * modais (fixed inset-0) ficarem presos dentro do wrapper da página e
+ * aparecerem fora da tela.
+ */
+.animate-fade-in {
+  animation: fadeIn 0.18s ease-out backwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-scale-up {
+  animation: scaleUp 0.2s ease-out backwards;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spinSlow 6s linear infinite;
+}
+
+/* ───────────────────────── Compatibilidade com animate-in/out ─────────────────────────
+ * Permite que classes declaradas como `animate-in fade-in zoom-in-95` funcionem no Tailwind v4
+ */
+@keyframes enterAnim {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), 1);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+.animate-in {
+  animation: enterAnim var(--tw-duration, 0.2s) cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.fade-in {
+  --tw-enter-opacity: 0;
+}
+.zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+.zoom-in {
+  --tw-enter-scale: 0.85;
+}
+.slide-in-from-top-1 {
+  --tw-enter-translate-y: -4px;
+}
+.slide-in-from-top-2 {
+  --tw-enter-translate-y: -8px;
+}
+.slide-in-from-bottom-2 {
+  --tw-enter-translate-y: 8px;
+}
+.slide-in-from-bottom-4 {
+  --tw-enter-translate-y: 16px;
+}
+.duration-150 {
+  --tw-duration: 150ms;
+}
+.duration-200 {
+  --tw-duration: 200ms;
+}
+.duration-300 {
+  --tw-duration: 300ms;
+}
+
+@keyframes exitAnim {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  to {
+    opacity: var(--tw-exit-opacity, 0);
+    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), 1);
+  }
+}
+.animate-out {
+  animation: exitAnim var(--tw-duration, 0.15s) cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+.fade-out {
+  --tw-exit-opacity: 0;
+}
+.zoom-out-95 {
+  --tw-exit-scale: 0.95;
+}
+.slide-out-to-bottom-full {
+  --tw-exit-translate-y: 100%;
+}
+
+/* ───────────────────────── Modais, Drawers e Diálogos ───────────────────────── */
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modalBackdropOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes modalCardIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modalCardOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.96) translateY(4px); }
+}
+
+.motion-modal-backdrop-in {
+  animation: modalBackdropIn 0.2s ease-out backwards;
+}
+.motion-modal-backdrop-out {
+  animation: modalBackdropOut 0.15s ease-in forwards;
+}
+.motion-modal-card-in {
+  animation: modalCardIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.motion-modal-card-out {
+  animation: modalCardOut 0.14s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes drawerIn {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes drawerOut {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+.motion-drawer-in {
+  animation: drawerIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.motion-drawer-out {
+  animation: drawerOut 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes floatBarOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(24px) scale(0.95); }
+}
+.motion-float-bar-out {
+  animation: floatBarOut 0.15s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+/* Skeleton Shimmer */
+@keyframes skeletonPulse {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.8) 25%,
+    rgba(241, 245, 249, 0.95) 37%,
+    rgba(226, 232, 240, 0.8) 63%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.6s ease-in-out infinite;
+}
+
+/* Transição de Página */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.motion-page-enter {
+  animation: pageEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ───────────────────────── Cobranças — micro-interações ─────────────────────────
+ * Todas usam `backwards` (não `forwards`) para não deixar `transform` residual,
+ * que quebraria elementos `position: fixed` / dropdowns descendentes.
+ */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Entrada escalonada: cada linha define --i (índice) e entra um pouco depois da anterior */
+.animate-row-in {
+  animation: rowIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-tab-in {
+  animation: tabIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop {
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-toast-in {
+  animation: toastIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-12px) scale(0.96); }
+}
+.animate-toast-out {
+  animation: toastOut 0.16s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-drop-in {
+  animation: dropIn 0.15s ease-out backwards;
+  transform-origin: top right;
+}
+
+/* Barra de progresso com brilho que corre enquanto o envio está ativo */
+@keyframes shimmer {
+  from { background-position: 0 0; }
+  to   { background-position: 28px 0; }
+}
+.progress-stripes {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.22) 75%, transparent 75%
+  );
+  background-size: 28px 28px;
+  animation: shimmer 0.8s linear infinite;
+}
+
+/* Feedback de toque/clique em botões */
+.btn-press {
+  transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.btn-press:active {
+  transform: scale(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-row-in,
+  .animate-tab-in,
+  .animate-pop,
+  .animate-toast-in,
+  .animate-toast-out,
+  .animate-drop-in,
+  .animate-slide-up,
+  .animate-in,
+  .animate-out,
+  .motion-modal-backdrop-in,
+  .motion-modal-backdrop-out,
+  .motion-modal-card-in,
+  .motion-modal-card-out,
+  .motion-drawer-in,
+  .motion-drawer-out,
+  .motion-float-bar-out,
+  .motion-page-enter,
+  .progress-stripes,
+  .skeleton-shimmer {
+    animation: none !important;
+  }
+  .btn-press:active { transform: none; }
+}

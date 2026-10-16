@@ -1,0 +1,72 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import bcrypt from "bcryptjs";
+import { SignJWT } from "jose";
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "solucoes-financeiras-super-secret-key-2026"
+);
+
+export async function POST(request: Request) {
+  try {
+    const { email, password, rememberMe } = await request.json();
+
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email e senha são obrigatórios" }, { status: 400 });
+    }
+
+    let user = await prisma.perfil.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      // Se o banco estiver totalmente sem usuários, cria o primeiro usuário automaticamente
+      const count = await prisma.perfil.count().catch(() => 0);
+      if (count === 0) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user = await prisma.perfil.create({
+          data: {
+            nome: "Administrador",
+            email: email,
+            senha: hashedPassword,
+          },
+        });
+      } else {
+        return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
+      }
+    }
+
+    const isValid = await bcrypt.compare(password, user.senha);
+
+    if (!isValid) {
+      return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
+    }
+
+    // Tempo de expiração: 30 dias se "Lembrar-me" estiver marcado, senão 24h
+    const tokenExp = rememberMe ? "30d" : "24h";
+    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 dias ou 24 horas
+
+    // Gerar token
+    const token = await new SignJWT({ sub: user.id, email: user.email, nome: user.nome })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime(tokenExp)
+      .sign(JWT_SECRET);
+
+    const response = NextResponse.json({ success: true });
+    
+    // Set HTTP-only cookie
+    response.cookies.set({
+      name: "sol_auth_token",
+      value: token,
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: cookieMaxAge,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Login error:", error);
+    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
+  }
+}
