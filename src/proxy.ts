@@ -9,9 +9,12 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rotas públicas que não precisam de autenticação
+  // Rotas públicas que não precisam de autenticação de tenant (incluindo /sys-init e APIs de setup protegidas por PIN)
   if (
     pathname.startsWith("/api/auth/login") ||
+    pathname.startsWith("/api/auth/logout") ||
+    pathname.startsWith("/sys-init") ||
+    pathname.startsWith("/api/tenants/setup") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/icons") ||
@@ -23,14 +26,16 @@ export async function proxy(request: NextRequest) {
     pathname.includes("manifest") ||
     /\.(png|jpg|jpeg|gif|svg|ico|webp|webmanifest|json)$/i.test(pathname)
   ) {
-    // Se tentar acessar o login estando autenticado, vai pro painel
+    // Se tentar acessar o login estando autenticado com um token multi-tenant válido, vai pro painel
     if (pathname === "/login") {
       const token = request.cookies.get("sol_auth_token")?.value;
       if (token) {
         try {
-          await jwtVerify(token, JWT_SECRET);
-          return NextResponse.redirect(new URL("/", request.url));
-        } catch (e) {
+          const { payload } = await jwtVerify(token, JWT_SECRET);
+          if (payload.tenantId) {
+            return NextResponse.redirect(new URL("/", request.url));
+          }
+        } catch {
           // Token inválido, segue pro login
         }
       }
@@ -48,11 +53,19 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (!payload.tenantId) {
+      const url = new URL("/login", request.url);
+      const res = NextResponse.redirect(url);
+      res.cookies.delete("sol_auth_token");
+      return res;
+    }
     return NextResponse.next();
-  } catch (error) {
+  } catch {
     const url = new URL("/login", request.url);
-    return NextResponse.redirect(url);
+    const res = NextResponse.redirect(url);
+    res.cookies.delete("sol_auth_token");
+    return res;
   }
 }
 

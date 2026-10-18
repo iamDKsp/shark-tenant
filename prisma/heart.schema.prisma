@@ -1,0 +1,91 @@
+// ============================================================
+//  HEART SCHEMA — Banco mestre multi-tenant (Shark)
+//  Gerencia tenants (empresas/operações) e usuários globais
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/heart-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id           String  @id @default(uuid())
+  databaseName String  @unique @map("database_name")
+  databaseUrl  String  @map("database_url")
+  name         String  @default("")
+  status       String  @default("active") // active, suspended, inactive
+  logoUrl      String?
+  modulos      Json?   @default("{\"emprestimos\": true, \"cheques\": true, \"parceiros\": true, \"whatsapp\": true}")
+
+  // Identificação
+  razaoSocial  String?
+  nomeFantasia String?
+  cnpj         String? @unique
+
+  // Endereço
+  logradouro   String?
+  numero       String?
+  complemento  String?
+  bairro       String?
+  municipio    String?
+  uf           String?
+  cep          String?
+  telefone     String?
+
+  // Mensalidades
+  mensalidadeValor      Decimal?  @default(0.00) @map("mensalidade_valor") @db.Decimal(10, 2)
+  mensalidadeVencimento DateTime? @map("mensalidade_vencimento")
+
+  // Informações de contato do cliente
+  telefoneContato String? @map("telefone_contato")
+  emailContato    String? @map("email_contato")
+  observacoes     String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  paymentLogs PaymentLog[]
+
+  @@map("tenants")
+}
+
+model User {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name     String
+  email    String  @unique
+  password String
+  role     String  @default("admin") // admin, manager, operator
+  pin      String?
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model PaymentLog {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  valor           Decimal  @db.Decimal(10, 2)
+  vencimentoAntes DateTime
+  vencimentoApos  DateTime
+  observacao      String?  @db.Text
+  registradoPor   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("payment_logs")
+}

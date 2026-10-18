@@ -1,22 +1,59 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+import { getCurrentTenantClient } from "./tenant-manager";
 
-const connectionString = process.env.DATABASE_URL;
+/**
+ * Proxy dinâmico Multi-Tenant para o PrismaClient.
+ *
+ * Redireciona automaticamente todas as chamadas (`prisma.cliente.*`, `prisma.emprestimo.*`,
+ * `prisma.$transaction(...)`, etc.) para o banco de dados PostgreSQL exclusivo do tenant
+ * autenticado na requisição atual (via cookie JWT `sol_auth_token` ou `AsyncLocalStorage`).
+ */
+function createMultiTenantPrismaProxy(): PrismaClient {
+  return new Proxy({} as PrismaClient, {
+    get(_target, prop: string | symbol) {
+      if (typeof prop === "symbol" || prop === "then") {
+        return undefined;
+      }
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+      // Métodos de nível raiz do PrismaClient ($transaction, $queryRaw, $executeRaw, etc.)
+      if (prop.startsWith("$")) {
+        return async (...args: any[]) => {
+          const client = await getCurrentTenantClient();
+          const fn = (client as any)[prop];
+          if (typeof fn !== "function") {
+            return fn;
+          }
+          return fn.apply(client, args);
+        };
+      }
 
-const isLocal = !connectionString || connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
-
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({ 
-    adapter: new PrismaPg(new Pool({ 
-      connectionString,
-      ssl: isLocal ? undefined : { rejectUnauthorized: false }
-    })) 
+      // Delegates de modelos (prisma.cliente, prisma.emprestimo, prisma.parcela, etc.)
+      return new Proxy(
+        {},
+        {
+          get(_modelTarget, methodProp: string | symbol) {
+            if (typeof methodProp === "symbol" || methodProp === "then") {
+              return undefined;
+            }
+            return async (...args: any[]) => {
+              const client = await getCurrentTenantClient();
+              const modelDelegate = (client as any)[prop];
+              if (!modelDelegate) {
+                throw new Error(
+                  `Modelo '${String(prop)}' não existe no PrismaClient do tenant.`
+                );
+              }
+              const method = modelDelegate[methodProp];
+              if (typeof method !== "function") {
+                return method;
+              }
+              return method.apply(modelDelegate, args);
+            };
+          },
+        }
+      );
+    },
   });
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-
+export const prisma: PrismaClient = createMultiTenantPrismaProxy();

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { heartPrisma } from "@/lib/heart-db";
+import { getTenantPrismaClient } from "@/lib/tenant-manager";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 
@@ -12,49 +13,106 @@ export async function POST(request: Request) {
     const { email, password, rememberMe } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Email e senha são obrigatórios" }, { status: 400 });
+      return NextResponse.json(
+        { error: "E-mail e senha são obrigatórios" },
+        { status: 400 }
+      );
     }
 
-    let user = await prisma.perfil.findUnique({
-      where: { email },
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const user = await heartPrisma.user.findFirst({
+      where: {
+        email: {
+          equals: normalizedEmail,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        tenant: true,
+      },
     });
 
-    if (!user) {
-      // Se o banco estiver totalmente sem usuários, cria o primeiro usuário automaticamente
-      const count = await prisma.perfil.count().catch(() => 0);
-      if (count === 0) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        user = await prisma.perfil.create({
-          data: {
-            nome: "Administrador",
-            email: email,
-            senha: hashedPassword,
-          },
-        });
-      } else {
-        return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
-      }
+    if (!user || !user.active) {
+      return NextResponse.json(
+        { error: "Credenciais inválidas ou usuário inativo" },
+        { status: 401 }
+      );
     }
 
-    const isValid = await bcrypt.compare(password, user.senha);
+    if (!user.tenant || user.tenant.status !== "active") {
+      return NextResponse.json(
+        {
+          error:
+            user.tenant?.status === "suspended"
+              ? "Acesso suspenso temporariamente. Entre em contato com o administrador."
+              : "Conta da empresa inativa.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
-      return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Credenciais inválidas" },
+        { status: 401 }
+      );
+    }
+
+    // Sincroniza registro de perfil no banco isolado do tenant (compatibilidade interna)
+    try {
+      const tenantClient = await getTenantPrismaClient(user.tenantId);
+      await tenantClient.perfil.upsert({
+        where: { email: user.email },
+        update: {
+          nome: user.name,
+          senha: user.password,
+        },
+        create: {
+          id: user.id,
+          nome: user.name,
+          email: user.email,
+          senha: user.password,
+        },
+      });
+    } catch (syncErr) {
+      console.warn("Aviso ao sincronizar perfil no banco do tenant:", syncErr);
     }
 
     // Tempo de expiração: 30 dias se "Lembrar-me" estiver marcado, senão 24h
     const tokenExp = rememberMe ? "30d" : "24h";
-    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 dias ou 24 horas
+    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
 
-    // Gerar token
-    const token = await new SignJWT({ sub: user.id, email: user.email, nome: user.nome })
+    const token = await new SignJWT({
+      sub: user.id,
+      id: user.id,
+      email: user.email,
+      nome: user.name,
+      tenantId: user.tenantId,
+      role: user.role,
+    })
       .setProtectedHeader({ alg: "HS256" })
       .setExpirationTime(tokenExp)
       .sign(JWT_SECRET);
 
-    const response = NextResponse.json({ success: true });
-    
-    // Set HTTP-only cookie
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId,
+        tenantName:
+          user.tenant.nomeFantasia ||
+          user.tenant.razaoSocial ||
+          user.tenant.name ||
+          user.tenant.databaseName,
+      },
+    });
+
     response.cookies.set({
       name: "sol_auth_token",
       value: token,
@@ -67,6 +125,9 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro interno no servidor ao realizar login" },
+      { status: 500 }
+    );
   }
 }

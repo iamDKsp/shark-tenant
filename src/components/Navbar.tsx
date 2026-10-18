@@ -51,7 +51,7 @@ export default function Navbar() {
     }
   };
 
-  if (pathname === "/login") {
+  if (pathname === "/login" || pathname.startsWith("/sys-init")) {
     return null;
   }
 

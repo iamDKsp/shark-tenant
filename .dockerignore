@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env
+.env.*
+*.log
+data
+transcript_backup.jsonl
+recover*.json
+clientes.json
+emprestimos.json
+diff_full.txt
