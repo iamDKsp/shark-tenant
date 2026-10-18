@@ -55,8 +55,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-3 sm:p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="text-center mb-10 animate-fade-in-up">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4 shadow-sm border border-emerald-200">
-            <Lock className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-[#064e3b] mb-4 shadow-lg shadow-emerald-900/20 border border-emerald-500/30 p-2">
+            <img
+              src="/shark-symbol-v3.png"
+              alt="Shark Soluções Financeiras"
+              width={68}
+              height={68}
+              className="w-full h-full object-contain scale-110"
+            />
           </div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900">
             Soluções Financeiras

@@ -70,19 +70,15 @@ export default function Navbar() {
         <div className="w-full max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[1880px] mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group active:scale-95 transition-transform min-w-0">
-              {/* Logo Customizada com Escudo e N */}
-              <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 transition-transform duration-300 group-hover:scale-105 shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-900 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all duration-300" />
-                <div className="absolute inset-[2px] bg-[#043e2f] rounded-full border border-emerald-500/30" />
-                <Shield className="absolute w-[20px] h-[20px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] text-emerald-400" strokeWidth={1.5} />
-                <span className="absolute font-black text-base sm:text-lg md:text-xl text-white mt-0.5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
-                  N
-                </span>
-                <div className="absolute -bottom-1 -right-1 bg-[#043e2f] rounded-full p-[2px] md:p-[3px] shadow-sm">
-                  <div className="bg-gradient-to-br from-amber-300 to-amber-500 rounded-full w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex items-center justify-center shadow-inner">
-                    <DollarSign className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 text-[#043e2f]" strokeWidth={4} />
-                  </div>
-                </div>
+              {/* Nova Logo Shark v3 */}
+              <div className="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 transition-transform duration-300 group-hover:scale-105 shrink-0">
+                <img
+                  src="/shark-symbol-v3.png"
+                  alt="Shark Soluções Financeiras"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-contain scale-[1.15] drop-shadow-[0_2px_10px_rgba(0,208,132,0.3)]"
+                />
               </div>
 
               {/* Texto do Logo */}

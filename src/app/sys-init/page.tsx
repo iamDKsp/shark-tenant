@@ -1091,8 +1091,12 @@ export default function SysInitPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0,transparent_100%)] pointer-events-none" />
 
         <div className="w-full max-w-md bg-zinc-900/85 border border-emerald-500/20 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(16,185,129,0.08)] relative z-10">
-          <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-            <KeyRound size={30} />
+          <div className="w-20 h-20 bg-[#064e3b] border border-emerald-500/35 rounded-3xl flex items-center justify-center mx-auto mb-6 p-2.5 shadow-[0_0_30px_rgba(16,185,129,0.25)]">
+            <img
+              src="/shark-symbol-v3.png"
+              alt="Shark Multi-Tenant"
+              className="w-full h-full object-contain scale-110"
+            />
           </div>
 
           <h1 className="text-2xl font-bold text-center text-white mb-2">
@@ -1284,10 +1288,14 @@ export default function SysInitPage() {
        * STICKY APP HEADER (MOBILE & DESKTOP)
        * ==================================================================== */}
       <header className="sticky top-0 z-30 bg-[#060d0b]/85 backdrop-blur-xl border-b border-emerald-500/15">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div className="w-full px-4 sm:px-6 lg:px-10 2xl:px-14 py-3 sm:py-4 flex items-center justify-between gap-3">
           <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-[0_0_25px_rgba(16,185,129,0.3)] shrink-0 border border-emerald-400/30">
-              <Database size={22} className="text-white" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#064e3b] rounded-2xl flex items-center justify-center shadow-[0_0_25px_rgba(16,185,129,0.25)] shrink-0 border border-emerald-500/35 p-1.5">
+              <img
+                src="/shark-symbol-v3.png"
+                alt="Shark Multi-Tenant"
+                className="w-full h-full object-contain scale-110"
+              />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -1411,7 +1419,7 @@ export default function SysInitPage() {
       {/* ====================================================================
        * MAIN CONTAINER
        * ==================================================================== */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 relative z-10 space-y-5">
+      <div className="w-full px-4 sm:px-6 lg:px-10 2xl:px-14 pt-4 sm:pt-6 relative z-10 space-y-5">
         {/* KPI SUMMARY STRIP (2x2 on mobile, 4 cols on desktop) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
           <div className="rounded-2xl bg-zinc-900/75 border border-emerald-500/20 px-3.5 py-3 flex items-center justify-between gap-2 shadow-sm">
@@ -1671,10 +1679,13 @@ export default function SysInitPage() {
               </div>
             ) : tenants.length === 0 ? (
               <div className="bg-zinc-900/50 border border-emerald-500/20 rounded-3xl p-8 sm:p-12 text-center">
-                <Building2
-                  size={48}
-                  className="mx-auto text-emerald-500/50 mb-4"
-                />
+                <div className="w-20 h-20 rounded-3xl bg-[#064e3b] border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 p-2.5 shadow-[0_0_25px_rgba(16,185,129,0.2)]">
+                  <img
+                    src="/shark-symbol-v3.png"
+                    alt="Shark"
+                    className="w-full h-full object-contain scale-110"
+                  />
+                </div>
                 <h3 className="text-lg font-bold text-zinc-200 mb-2">
                   Nenhuma empresa provisionada ainda
                 </h3>
@@ -1712,7 +1723,7 @@ export default function SysInitPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
                 {filteredTenants.map((t) => {
                   const venc = t.mensalidadeVencimento
                     ? new Date(t.mensalidadeVencimento)
@@ -2051,7 +2062,7 @@ export default function SysInitPage() {
          * VIEW: NEW TENANT (PROVISIONAMENTO)
          * ================================================================== */}
         {view === "new" && (
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full">
             {successData ? (
               <div className="bg-emerald-950/30 border border-emerald-500/35 rounded-3xl p-6 sm:p-8 text-center animate-fadeIn shadow-2xl">
                 <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-400 border border-emerald-500/30">
@@ -2304,7 +2315,7 @@ export default function SysInitPage() {
          * VIEW: EDIT TENANT (5 ABAS COMPLETAS + MOBILE NATIVO)
          * ================================================================== */}
         {view === "edit" && editingTenant && (
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full">
             <div className="bg-zinc-900/75 border border-emerald-500/20 rounded-3xl p-4 sm:p-8 backdrop-blur-xl relative shadow-2xl">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-zinc-800">
                 <div className="flex items-center space-x-3 min-w-0">
@@ -3475,7 +3486,7 @@ export default function SysInitPage() {
          * VIEW: BACKUPS & SNAPSHOTS
          * ================================================================== */}
         {view === "backups" && (
-          <div className="max-w-5xl mx-auto space-y-6">
+          <div className="w-full space-y-6">
             <div className="bg-zinc-900/75 border border-emerald-500/20 rounded-3xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-5">
                 <div className="flex items-center gap-3">
@@ -3628,7 +3639,7 @@ export default function SysInitPage() {
          * VIEW: SQL EDITOR (DBEAVER STYLE + MOBILE SWITCHER)
          * ================================================================== */}
         {view === "sql" && (
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             {!sqlUnlocked ? (
               <div className="max-w-md mx-auto bg-zinc-900/90 border border-emerald-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl text-center">
                 <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-5 text-emerald-400">
