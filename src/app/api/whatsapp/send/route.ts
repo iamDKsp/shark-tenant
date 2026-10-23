@@ -1,22 +1,12 @@
 import { NextResponse } from "next/server";
 import { normalizarTelefone } from "@/lib/mensagens/render";
-
-function getWhatsappApiUrl() {
-  let url = process.env.WHATSAPP_API_URL || "http://179.127.59.225:3529";
-  url = url.trim();
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = `https://${url}`;
-  }
-  return url.replace(/\/+$/, "");
-}
+import { getWhatsappApiUrl, resolveCurrentTenantId } from "@/lib/whatsapp";
 
 export async function POST(req: Request) {
   const WHATSAPP_API = getWhatsappApiUrl();
-  
+
   try {
     const body = await req.json();
-    // O telefone vai DENTRO de cada item de `messages` (formato esperado pelo
-    // serviço de WhatsApp): { messages: [{ phone, text | document, ... }] }.
     if (
       !body ||
       !Array.isArray(body.messages) ||
@@ -25,6 +15,8 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ error: "Requisição inválida." }, { status: 400 });
     }
+
+    const tenantId = body.tenantId || body.tenant_id || (await resolveCurrentTenantId());
 
     const messages = [];
     for (const item of body.messages) {
@@ -36,17 +28,24 @@ export async function POST(req: Request) {
     }
 
     const res = await fetch(`${WHATSAPP_API}/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, messages })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-tenant-id": tenantId,
+      },
+      body: JSON.stringify({ ...body, tenantId, messages }),
+      signal: AbortSignal.timeout(15000),
     });
-    
+
     const data = await res.json();
     if (!res.ok) {
       return NextResponse.json(data, { status: res.status });
     }
     return NextResponse.json(data);
   } catch (err: any) {
-    return NextResponse.json({ error: "Falha de conexão com o servidor do WhatsApp." }, { status: 500 });
+    return NextResponse.json(
+      { error: err?.message || "Falha de conexão com o servidor do WhatsApp." },
+      { status: 500 }
+    );
   }
 }

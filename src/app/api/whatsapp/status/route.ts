@@ -1,22 +1,29 @@
 import { NextResponse } from "next/server";
+import { getWhatsappApiUrl, resolveCurrentTenantId } from "@/lib/whatsapp";
 
-function getWhatsappApiUrl() {
-  let url = process.env.WHATSAPP_API_URL || "http://179.127.59.225:3529";
-  url = url.trim();
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = `https://${url}`;
-  }
-  return url.replace(/\/+$/, "");
-}
-
-export async function GET() {
+export async function GET(req: Request) {
   const WHATSAPP_API = getWhatsappApiUrl();
-  
+  const url = new URL(req.url);
+  const qTenant = url.searchParams.get("tenantId") || url.searchParams.get("tenant_id");
+  const tenantId = qTenant || (await resolveCurrentTenantId());
+
   try {
-    const res = await fetch(`${WHATSAPP_API}/status`, { cache: 'no-store' });
+    const res = await fetch(`${WHATSAPP_API}/status?tenantId=${encodeURIComponent(tenantId)}`, {
+      cache: "no-store",
+      headers: { "x-tenant-id": tenantId },
+      signal: AbortSignal.timeout(10000),
+    });
     const data = await res.json();
-    return NextResponse.json(data);
+    return NextResponse.json({ ...data, tenantId });
   } catch (error: any) {
-    return NextResponse.json({ status: "disconnected", error: error.message || "Offline", url: WHATSAPP_API }, { status: 500 });
+    return NextResponse.json(
+      {
+        status: "disconnected",
+        tenantId,
+        error: error.message || "Offline",
+        url: WHATSAPP_API,
+      },
+      { status: 500 }
+    );
   }
 }
