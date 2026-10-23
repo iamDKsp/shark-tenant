@@ -453,15 +453,19 @@ body {
 @keyframes loginCurvedRibbonFlow {
   0% {
     stroke-dashoffset: 680;
-    opacity: 1;
+    opacity: 0.95;
   }
   45% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+  92% {
+    stroke-dashoffset: -680;
+    opacity: 0.95;
+  }
   100% {
     stroke-dashoffset: -680;
-    opacity: 1;
+    opacity: 0;
   }
 }
 
@@ -512,7 +516,7 @@ body {
 .animate-curved-ribbon {
   stroke-dasharray: 680;
   stroke-dashoffset: 680;
-  animation: loginCurvedRibbonFlow 2.1s cubic-bezier(0.37, 0, 0.2, 1) forwards;
+  animation: loginCurvedRibbonFlow 3.4s cubic-bezier(0.37, 0, 0.2, 1) infinite;
 }
 
 .animate-face-scan-3d {

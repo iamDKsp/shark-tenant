@@ -18,7 +18,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (isLogin) {
-    return <main className="min-h-screen w-full bg-slate-50">{children}</main>;
+    return (
+      <main className="fixed inset-0 w-full h-[100dvh] overflow-hidden overscroll-none bg-[#12171d]">
+        {children}
+      </main>
+    );
   }
 
   return (
