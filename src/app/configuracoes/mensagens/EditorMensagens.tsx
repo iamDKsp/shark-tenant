@@ -79,7 +79,7 @@ function StatusLinha({ status }: { status: Status }) {
       ? "text-emerald-700 bg-emerald-50 border-emerald-200"
       : status.tipo === "aviso"
       ? "text-amber-700 bg-amber-50 border-amber-200"
-      : "text-rose-700 bg-rose-50 border-rose-200";
+      : "text-red-700 bg-red-50 border-red-200";
   return (
     <div className={`text-xs font-semibold border rounded-lg px-3 py-2 ${cor}`} role="status">
       {status.texto}
@@ -218,7 +218,7 @@ function CardMensagem({ m, telefoneTeste }: { m: MensagemEditavel; telefoneTeste
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {m.personalizado && !dirty && (
-            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-50 text-sky-600 border border-sky-200">
+            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 border border-teal-200">
               Editada
             </span>
           )}
@@ -266,7 +266,7 @@ function CardMensagem({ m, telefoneTeste }: { m: MensagemEditavel; telefoneTeste
       </div>
 
       {!validacao.ok && (
-        <p className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 flex gap-1.5">
+        <p className="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex gap-1.5">
           <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
           <span>
             {validacao.malformadas.length > 0 &&
@@ -317,7 +317,7 @@ function CardMensagem({ m, telefoneTeste }: { m: MensagemEditavel; telefoneTeste
             type="button"
             onClick={restaurar}
             disabled={isPending}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-red-600 px-3 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Restaurar padrão
           </button>
@@ -431,7 +431,7 @@ function SecaoRespostas({ inicial }: { inicial: string[] }) {
                 <button
                   type="button"
                   onClick={() => setLista((l) => l.filter((_, idx) => idx !== i))}
-                  className="p-1.5 text-rose-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 cursor-pointer"
+                  className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 cursor-pointer"
                   aria-label="Remover"
                 >
                   <Trash2 className="w-4 h-4" />

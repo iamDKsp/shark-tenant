@@ -55,17 +55,17 @@ export interface Tema {
 
 export const TEMAS: Record<CorTema, Tema> = {
   rose: {
-    dot: "bg-rose-500",
-    title: "text-rose-600",
-    pill: "bg-rose-50 text-rose-600 border border-rose-200",
-    headBorder: "border-rose-500/20",
-    accent: "accent-rose-500",
-    selectedBg: "bg-rose-50/60",
-    chip: "bg-rose-50 text-rose-600 border-rose-200",
-    soft: "bg-rose-50 text-rose-600",
-    massBtn: "bg-rose-500 hover:bg-rose-600 shadow-rose-500/25",
-    ring: "focus:ring-rose-500/20 focus:border-rose-300",
-    progress: "bg-rose-500",
+    dot: "bg-red-500",
+    title: "text-red-600",
+    pill: "bg-red-50 text-red-600 border border-red-200",
+    headBorder: "border-red-500/20",
+    accent: "accent-red-500",
+    selectedBg: "bg-red-50/60",
+    chip: "bg-red-50 text-red-600 border-red-200",
+    soft: "bg-red-50 text-red-600",
+    massBtn: "bg-red-500 hover:bg-red-600 shadow-red-500/25",
+    ring: "focus:ring-red-500/20 focus:border-red-300",
+    progress: "bg-red-500",
   },
   orange: {
     dot: "bg-orange-500",

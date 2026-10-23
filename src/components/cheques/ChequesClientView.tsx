@@ -118,7 +118,7 @@ export default function ChequesClientView({ cheques, clientes, parceiros }: Cheq
                     </h3>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase flex items-center gap-1 shrink-0 ${
                       c.status === "compensado" ? "bg-emerald-100 text-emerald-700" :
-                      c.status === "devolvido" ? "bg-rose-100 text-rose-700" :
+                      c.status === "devolvido" ? "bg-red-100 text-red-700" :
                       "bg-amber-100 text-amber-700"
                     }`}>
                       {c.status === "compensado" ? "Compensado" : c.status === "devolvido" ? "Devolvido" : "Pendente"}
@@ -166,7 +166,7 @@ export default function ChequesClientView({ cheques, clientes, parceiros }: Cheq
                   
                   <button
                     onClick={() => handleDelete(c.id)}
-                    className="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors cursor-pointer"
                     title="Excluir"
                   >
                     <Trash2 className="w-4 h-4" />

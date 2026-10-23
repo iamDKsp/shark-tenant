@@ -329,7 +329,7 @@ export default function ClientCobrancasView({ atrasadosOntem, atrasadosAnteriore
             onClick={() => setActiveTab(tab.id)}
             className={`flex flex-col items-center justify-center gap-0.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === tab.id
-                ? tab.color === "rose"    ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                ? tab.color === "rose"    ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
                 : tab.color === "orange"  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
                 : tab.color === "red"     ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
                 : tab.color === "amber"   ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
@@ -339,7 +339,7 @@ export default function ClientCobrancasView({ atrasadosOntem, atrasadosAnteriore
           >
             <span className={`text-lg font-black leading-none ${
               activeTab === tab.id ? "text-white" :
-              tab.color === "rose"   ? "text-rose-500" :
+              tab.color === "rose"   ? "text-red-500" :
               tab.color === "orange" ? "text-orange-500" :
               tab.color === "red"    ? "text-red-600" :
               tab.color === "amber"  ? "text-amber-500" :

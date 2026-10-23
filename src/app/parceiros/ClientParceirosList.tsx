@@ -142,7 +142,7 @@ export default function ClientParceirosList({ parceiros }: ClientParceirosListPr
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(p.id, p.nome); }}
                     disabled={isPending}
-                    className="p-2 hover:bg-rose-50 text-rose-500 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                    className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                     title="Excluir parceiro"
                   >
                     <Trash2 className="w-4 h-4" />

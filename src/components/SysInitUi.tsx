@@ -541,7 +541,7 @@ export function SysDateTimePicker({
                 e.stopPropagation();
                 onChange("");
               }}
-              className="p-1 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+              className="p-1 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition"
               aria-label="Limpar data"
             >
               <X size={14} />
@@ -700,7 +700,7 @@ export function SysDateTimePicker({
                 onChange("");
                 setOpen(false);
               }}
-              className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-rose-500/15 text-zinc-400 hover:text-rose-300 border border-zinc-800 text-[11px] font-semibold transition"
+              className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-red-500/15 text-zinc-400 hover:text-red-300 border border-zinc-800 text-[11px] font-semibold transition"
             >
               Limpar
             </button>

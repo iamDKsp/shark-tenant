@@ -324,7 +324,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label htmlFor="clienteId" className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                  Pessoa <span className="text-rose-500">*</span>
+                  Pessoa <span className="text-red-500">*</span>
                 </label>
                 <div className="bg-slate-50 border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 hover:border-emerald-400 transition-colors">
                   <SearchableSelect
@@ -339,7 +339,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
 
               <div className="space-y-2">
                 <label htmlFor="parceiroId" className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                  Quem Emprestou? <span className="text-rose-500">*</span>
+                  Quem Emprestou? <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="parceiroId"
@@ -362,11 +362,11 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
 
         {/* Seção 2: Valores e Modalidade */}
         <div className="premium-card bg-white border border-slate-200 shadow-md rounded-2xl relative overflow-hidden transition-shadow hover:shadow-lg mt-6">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-500"></div>
           <div className="p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-blue-50 rounded-xl">
-                <Wallet className="w-5 h-5 text-blue-600" />
+              <div className="p-2.5 bg-teal-50 rounded-xl">
+                <Wallet className="w-5 h-5 text-teal-600" />
               </div>
               <div>
                 <h2 className="text-base font-black text-slate-800 tracking-tight">Valores e Modalidade</h2>
@@ -377,7 +377,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
             <div className="space-y-8">
               <div className="space-y-3">
                 <label htmlFor="valorEmprestado" className="text-sm font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
-                  Valor Principal <span className="text-rose-500">*</span>
+                  Valor Principal <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group max-w-sm">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
@@ -400,7 +400,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
 
               <div className="space-y-3">
                 <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                  Tipo de Pagamento <span className="text-rose-500">*</span>
+                  Tipo de Pagamento <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
                   {[
@@ -426,9 +426,9 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
                     </button>
                   ))}
                 </div>
-                <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-100 flex items-start gap-3 mt-2">
-                  <Calculator className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-blue-800 font-medium leading-relaxed">
+                <div className="bg-teal-50 p-3.5 rounded-xl border border-teal-100 flex items-start gap-3 mt-2">
+                  <Calculator className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-teal-800 font-medium leading-relaxed">
                     {getDescricaoTipo()}
                   </p>
                 </div>
@@ -453,7 +453,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
                       onClick={() => setCategoria(cat)}
                       className={`py-2 px-4 rounded-full border text-sm font-bold transition-all cursor-pointer ${
                         categoria === cat
-                          ? "bg-blue-600 text-white border-blue-600 shadow-sm transform scale-[1.05]"
+                          ? "bg-teal-600 text-white border-teal-600 shadow-sm transform scale-[1.05]"
                           : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
@@ -581,7 +581,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
               {/* Data de Início */}
               <div className="space-y-2">
                 <label htmlFor="dataInicio" className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                  Data de Início <span className="text-rose-500">*</span>
+                  Data de Início <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -598,7 +598,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
               {tipoPagamento !== "a_vista" && tipoPagamento !== "a_vista_juros" && tipoPagamento !== "juros_compostos" && (
                 <div className="space-y-2 animate-in fade-in duration-200">
                   <label htmlFor="vencimentoPrimeira" className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                    Vencimento da 1ª Parcela <span className="text-rose-500">*</span>
+                    Vencimento da 1ª Parcela <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -614,7 +614,7 @@ export default function FormNovoEmprestimo({ clientes, parceiros, clienteIdParam
 
             <div className="mt-8 space-y-3 pt-6 border-t border-slate-100">
               <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                Frequência de Cobrança <span className="text-rose-500">*</span>
+                Frequência de Cobrança <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[

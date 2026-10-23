@@ -71,7 +71,7 @@ export default function AtrasoField({ tipoInicial, valorInicial }: Props) {
 
           <div className="space-y-2 max-w-xs">
             <label htmlFor="atrasoValor" className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-              {fixo ? "Valor por dia de atraso" : "Porcentagem por dia de atraso"} <span className="text-rose-500">*</span>
+              {fixo ? "Valor por dia de atraso" : "Porcentagem por dia de atraso"} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               {fixo && (

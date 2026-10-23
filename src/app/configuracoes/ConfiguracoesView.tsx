@@ -79,13 +79,13 @@ export default function ConfiguracoesView({ initialConfig }: Props) {
           className={`p-4 rounded-2xl flex items-center space-x-3 text-sm font-medium animate-in fade-in duration-200 ${
             feedback.tipo === "sucesso"
               ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-              : "bg-rose-50 text-rose-800 border border-rose-200"
+              : "bg-red-50 text-red-800 border border-red-200"
           }`}
         >
           {feedback.tipo === "sucesso" ? (
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
           )}
           <span>{feedback.msg}</span>
         </div>

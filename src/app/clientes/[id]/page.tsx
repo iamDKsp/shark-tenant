@@ -182,7 +182,7 @@ export default async function ClienteDetalhesPage({ params }: PageProps) {
         <p className="text-sm text-slate-500 mt-1">{cliente.telefone}</p>
 
         {cliente.blacklist && (
-          <span className="mt-2 bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+          <span className="mt-2 bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
             Lista Negra (Bloqueado)
           </span>
         )}
@@ -247,11 +247,11 @@ export default async function ClienteDetalhesPage({ params }: PageProps) {
 
           {/* Total Atrasado */}
           <div className="premium-card p-4 bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col justify-between">
-            <div className="flex items-center space-x-2 text-rose-500">
+            <div className="flex items-center space-x-2 text-red-500">
               <AlertCircle className="w-4.5 h-4.5 shrink-0" />
               <span className="text-xs font-bold uppercase tracking-wider">Total Atrasado</span>
             </div>
-            <div className="text-lg font-bold text-rose-600 mt-2">
+            <div className="text-lg font-bold text-red-600 mt-2">
               {formatBRL(totalAtrasado)}
             </div>
           </div>
@@ -277,7 +277,7 @@ export default async function ClienteDetalhesPage({ params }: PageProps) {
             <div className="text-xs text-slate-400 uppercase font-semibold">Abertos</div>
           </div>
           <div>
-            <div className="text-lg font-bold text-rose-600">{countAtrasados}</div>
+            <div className="text-lg font-bold text-red-600">{countAtrasados}</div>
             <div className="text-xs text-slate-400 uppercase font-semibold">Atrasados</div>
           </div>
           <div>
@@ -417,7 +417,7 @@ export default async function ClienteDetalhesPage({ params }: PageProps) {
                           Compensado
                         </span>
                       ) : cheque.status === "devolvido" ? (
-                        <span className="bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+                        <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full uppercase">
                           Devolvido
                         </span>
                       ) : (

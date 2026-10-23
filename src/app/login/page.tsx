@@ -16,7 +16,11 @@ import {
   LogOut,
   RotateCcw,
   Fingerprint,
+  Sun,
+  Moon,
+  History,
 } from "lucide-react";
+import { useSystemUiVersion } from "@/lib/theme";
 
 type FlowPhase =
   | "splash"
@@ -74,6 +78,23 @@ export default function LoginPage() {
   const [sheetView, setSheetView] = useState<SheetView>("cards");
   const [authMethod, setAuthMethod] = useState<"faceid" | "passcode">("faceid");
   const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const [themeToast, setThemeToast] = useState<string | null>(null);
+  const { isClassic, toggleVersion } = useSystemUiVersion();
+
+  const handleToggleUiVersion = () => {
+    const next = toggleVersion();
+    if (next === "classic") {
+      setThemeToast("Versão clássica (clara) restaurada");
+    } else {
+      setThemeToast("Nova versão escura Shark ativada");
+    }
+  };
+
+  useEffect(() => {
+    if (!themeToast) return;
+    const t = setTimeout(() => setThemeToast(null), 2800);
+    return () => clearTimeout(t);
+  }, [themeToast]);
 
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -740,14 +761,59 @@ export default function LoginPage() {
               className="relative z-20 flex-1 flex flex-col justify-between px-6 pb-5"
               style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
             >
-              {/* Top-Right Settings Gear Button */}
+              {/* Top-Right Action Buttons: Discreet Classic Restore Icon + Settings Gear Button */}
               <div
-                className={`flex items-center justify-end transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`relative flex items-center justify-end gap-2 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isAnyExit
                     ? "opacity-0 -translate-y-3 pointer-events-none"
                     : "opacity-100 translate-y-0"
                 }`}
               >
+                {themeToast && (
+                  <div className="mr-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#12171d]/90 backdrop-blur-md border border-emerald-300/30 text-[11px] font-bold text-emerald-100 shadow-lg animate-fade-in">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isClassic ? "bg-amber-400" : "bg-emerald-400"
+                      }`}
+                    />
+                    <span>{themeToast}</span>
+                  </div>
+                )}
+
+                {/* Discreet Button to Restore Classic Version / Toggle Dark Version */}
+                <button
+                  type="button"
+                  onClick={handleToggleUiVersion}
+                  title={
+                    isClassic
+                      ? "Voltar para a nova versão escura do sistema"
+                      : "Restaurar versão anterior (clássica clara) do sistema"
+                  }
+                  aria-label={
+                    isClassic
+                      ? "Ativar nova versão escura do sistema"
+                      : "Restaurar versão atual clássica do sistema"
+                  }
+                  className={`relative w-9 h-9 rounded-full backdrop-blur-md border flex items-center justify-center active:scale-90 transition-all cursor-pointer animate-fade-in ${
+                    isClassic
+                      ? "bg-white/25 border-amber-300/50 text-amber-200 shadow-sm"
+                      : "bg-[#022c22]/20 border-white/12 text-white/75 hover:text-white hover:bg-[#022c22]/35"
+                  }`}
+                  style={{ animationDelay: "180ms" }}
+                >
+                  {isClassic ? (
+                    <Sun className="w-4 h-4" />
+                  ) : (
+                    <History className="w-4 h-4" />
+                  )}
+                  {isClassic && (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-[#059669]"
+                      title="Modo clássico ativo"
+                    />
+                  )}
+                </button>
+
                 <button
                   type="button"
                   onClick={() =>
@@ -1256,6 +1322,34 @@ export default function LoginPage() {
                   </div>
 
                   <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={handleToggleUiVersion}
+                      className="w-full py-3 px-4 rounded-2xl bg-[#1c222b] hover:bg-[#242c37] border border-white/10 text-xs font-bold text-white flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        {isClassic ? (
+                          <Moon className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <History className="w-4 h-4 text-amber-400" />
+                        )}
+                        <span>
+                          {isClassic
+                            ? "Usar nova versão escura Shark"
+                            : "Restaurar versão clássica (clara)"}
+                        </span>
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          isClassic
+                            ? "bg-amber-500/20 text-amber-300"
+                            : "bg-emerald-500/20 text-emerald-300"
+                        }`}
+                      >
+                        {isClassic ? "Clássica" : "Escura (Nova)"}
+                      </span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={startIntroSequence}

@@ -145,7 +145,7 @@ export default function FormEditarEmprestimo({ emprestimo, clientes, parceiros }
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">Pessoa <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">Pessoa <span className="text-red-500">*</span></label>
                 <div className="bg-slate-50 border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 hover:border-emerald-400 transition-colors">
                   <SearchableSelect name="clienteId" value={clienteId} onChange={setClienteId} options={clientes} placeholder="Selecione uma pessoa..." />
                 </div>
@@ -162,15 +162,15 @@ export default function FormEditarEmprestimo({ emprestimo, clientes, parceiros }
         </div>
         {/* Secao 2: Valores */}
         <div className="bg-white border border-slate-200 shadow-md rounded-2xl relative overflow-hidden transition-shadow hover:shadow-lg">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500" />
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-500" />
           <div className="p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-blue-50 rounded-xl"><Wallet className="w-5 h-5 text-blue-600" /></div>
+              <div className="p-2.5 bg-teal-50 rounded-xl"><Wallet className="w-5 h-5 text-teal-600" /></div>
               <div><h2 className="text-base font-black text-slate-800 tracking-tight">Valores e Modalidade</h2><p className="text-sm text-slate-500 mt-0.5">Defina o montante e a forma de pagamento.</p></div>
             </div>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="text-sm font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">Valor Principal <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">Valor Principal <span className="text-red-500">*</span></label>
                 <div className="relative group max-w-sm">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"><span className="text-sm font-black text-emerald-600">R$</span></div>
                   <input type="number" name="valorEmprestado" required min="1" step="any" placeholder="0,00" value={valor || ""} onChange={(e) => setValor(Number(e.target.value))} className="w-full bg-emerald-50/50 border-2 border-emerald-500/50 rounded-xl pl-10 pr-4 py-3.5 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 text-emerald-700 font-black transition-all shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
@@ -185,16 +185,16 @@ export default function FormEditarEmprestimo({ emprestimo, clientes, parceiros }
                     </button>
                   ))}
                 </div>
-                <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-100 flex items-start gap-3 mt-2">
-                  <Calculator className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-blue-800 font-medium leading-relaxed">{getDescricaoTipo()}</p>
+                <div className="bg-teal-50 p-3.5 rounded-xl border border-teal-100 flex items-start gap-3 mt-2">
+                  <Calculator className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-teal-800 font-medium leading-relaxed">{getDescricaoTipo()}</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-bold text-slate-600 uppercase tracking-wider">Categoria</label>
                 <div className="flex flex-wrap gap-2.5">
                   {["Sem categoria", "Educação", "Emergência", "Família", "Pessoal", "Trabalho"].map((cat) => (
-                    <button key={cat} type="button" onClick={() => setCategoria(cat)} className={`py-2 px-4 rounded-full border text-sm font-bold transition-all cursor-pointer ${categoria === cat ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-[1.05]" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}>{cat}</button>
+                    <button key={cat} type="button" onClick={() => setCategoria(cat)} className={`py-2 px-4 rounded-full border text-sm font-bold transition-all cursor-pointer ${categoria === cat ? "bg-teal-600 text-white border-teal-600 shadow-sm scale-[1.05]" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}>{cat}</button>
                   ))}
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default function FormEditarEmprestimo({ emprestimo, clientes, parceiros }
                 </div>
               )}
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">Data de Início <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">Data de Início <span className="text-red-500">*</span></label>
                 <input type="date" name="dataInicio" required value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 font-semibold hover:border-amber-400 transition-colors cursor-pointer" />
               </div>
               {tipoPagamento !== "a_vista" && tipoPagamento !== "a_vista_juros" && tipoPagamento !== "juros_compostos" && (
@@ -257,14 +257,14 @@ export default function FormEditarEmprestimo({ emprestimo, clientes, parceiros }
             </div>
             <div className="space-y-6">
               <AtrasoField tipoInicial={emprestimo.atraso_tipo} valorInicial={emprestimo.atraso_valor} />
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-rose-50 rounded-xl border border-rose-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
                 <div className="mb-4 sm:mb-0">
-                  <span className="block text-sm font-bold text-rose-800">Recriar parcelas em aberto</span>
-                  <span className="text-sm text-rose-600 mt-1 block">Apaga as {parcelasAbertas.length} abertas e gera novas com os valores acima.{parcelasPagas.length > 0 && ` As ${parcelasPagas.length} pagas são mantidas.`}</span>
+                  <span className="block text-sm font-bold text-red-800">Recriar parcelas em aberto</span>
+                  <span className="text-sm text-red-600 mt-1 block">Apaga as {parcelasAbertas.length} abertas e gera novas com os valores acima.{parcelasPagas.length > 0 && ` As ${parcelasPagas.length} pagas são mantidas.`}</span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
                   <input type="checkbox" checked={recriarParcelas} onChange={(e) => setRecriarParcelas(e.target.checked)} className="sr-only peer" />
-                  <div className="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500" />
+                  <div className="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500" />
                 </label>
               </div>
               <div className="space-y-2 pt-2">

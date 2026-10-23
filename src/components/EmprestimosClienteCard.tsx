@@ -34,7 +34,7 @@ const formatBRL = (v: number) =>
 
 const badgeClasses: Record<EmprestimoClienteItem["situacao"], { cls: string; label: string }> = {
   quitado: { cls: "bg-slate-100 text-slate-600", label: "Quitado" },
-  atrasado: { cls: "bg-rose-100 text-rose-700", label: "Atrasado" },
+  atrasado: { cls: "bg-red-100 text-red-700", label: "Atrasado" },
   hoje: { cls: "bg-amber-100 text-amber-700", label: "Vencendo Hoje" },
   em_dia: { cls: "bg-emerald-100 text-emerald-700", label: "Em dia" },
 };
@@ -43,9 +43,9 @@ const acoes: {
   id: AcaoEmMassa; titulo: string; descricao: string; icone: React.ReactNode; cor: string; botao: string;
 }[] = [
   { id: "renovar", titulo: "Renovar", descricao: "Recebe só os juros e renova +30 dias (empréstimos à vista).", icone: <RefreshCw className="w-5 h-5" />, cor: "text-amber-600 bg-amber-50", botao: "bg-amber-500 hover:bg-amber-600" },
-  { id: "reprogramar", titulo: "Reprogramar", descricao: "Move todos para uma mesma data de vencimento.", icone: <CalendarClock className="w-5 h-5" />, cor: "text-blue-600 bg-blue-50", botao: "bg-blue-600 hover:bg-blue-700" },
+  { id: "reprogramar", titulo: "Reprogramar", descricao: "Move todos para uma mesma data de vencimento.", icone: <CalendarClock className="w-5 h-5" />, cor: "text-teal-600 bg-teal-50", botao: "bg-teal-600 hover:bg-teal-700" },
   { id: "quitar", titulo: "Quitar", descricao: "Quita todos os selecionados de uma vez.", icone: <CheckCircle2 className="w-5 h-5" />, cor: "text-emerald-600 bg-emerald-50", botao: "bg-emerald-600 hover:bg-emerald-700" },
-  { id: "excluir", titulo: "Excluir", descricao: "Apaga os empréstimos selecionados. Não dá para desfazer.", icone: <Trash2 className="w-5 h-5" />, cor: "text-rose-600 bg-rose-50", botao: "bg-rose-600 hover:bg-rose-700" },
+  { id: "excluir", titulo: "Excluir", descricao: "Apaga os empréstimos selecionados. Não dá para desfazer.", icone: <Trash2 className="w-5 h-5" />, cor: "text-red-600 bg-red-50", botao: "bg-red-600 hover:bg-red-700" },
 ];
 
 export default function EmprestimosClienteCard({ clienteId, emprestimos }: Props) {
@@ -385,7 +385,7 @@ export default function EmprestimosClienteCard({ clienteId, emprestimos }: Props
                         type="date"
                         value={novaData}
                         onChange={(e) => setNovaData(e.target.value)}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                       <p className="text-xs text-slate-400 mt-1">
                         Todos os selecionados passam a vencer nesta data.
@@ -411,7 +411,7 @@ export default function EmprestimosClienteCard({ clienteId, emprestimos }: Props
                   )}
 
                   {acaoAtual.id === "excluir" && (
-                    <div className="flex items-start gap-2 text-sm text-rose-700 bg-rose-50 rounded-xl p-3">
+                    <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-xl p-3">
                       <AlertCircle className="w-5 h-5 shrink-0" />
                       <span>Os empréstimos e suas parcelas serão apagados definitivamente.</span>
                     </div>
@@ -422,7 +422,7 @@ export default function EmprestimosClienteCard({ clienteId, emprestimos }: Props
                   </p>
 
                   {erro && (
-                    <div className="text-sm text-rose-700 bg-rose-50 rounded-xl p-3">{erro}</div>
+                    <div className="text-sm text-red-700 bg-red-50 rounded-xl p-3">{erro}</div>
                   )}
 
                   <div className="flex gap-2">
@@ -446,7 +446,7 @@ export default function EmprestimosClienteCard({ clienteId, emprestimos }: Props
               ) : null}
 
               {modal === "menu" && erro && (
-                <div className="text-sm text-rose-700 bg-rose-50 rounded-xl p-3">{erro}</div>
+                <div className="text-sm text-red-700 bg-red-50 rounded-xl p-3">{erro}</div>
               )}
             </div>
           </div>

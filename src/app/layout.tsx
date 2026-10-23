@@ -88,9 +88,18 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased shark-dark`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 antialiased overflow-x-clip">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var v=localStorage.getItem("shark_ui_version");var t=(v==="classic"||v==="dark")?v:"dark";document.documentElement.setAttribute("data-theme",t);if(t==="classic"){document.documentElement.classList.remove("shark-dark");document.documentElement.classList.add("shark-classic");}else{document.documentElement.classList.remove("shark-classic");document.documentElement.classList.add("shark-dark");}}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#0d1218] text-slate-100 antialiased overflow-x-clip transition-colors duration-300">
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -1117,12 +1117,12 @@ export default function SysInitPage() {
                 iconSize={20}
                 inputClassName={`bg-zinc-950 border ${
                   pinError
-                    ? "border-rose-500/50 focus:border-rose-500"
+                    ? "border-red-500/50 focus:border-red-500"
                     : "border-zinc-800 focus:border-emerald-500"
                 } rounded-2xl pl-4 py-4 text-center text-white tracking-[0.3em] text-lg focus:outline-none transition-all shadow-inner`}
               />
               {pinError && (
-                <p className="text-rose-400 text-xs text-center mt-2 animate-shake">
+                <p className="text-red-400 text-xs text-center mt-2 animate-shake">
                   PIN incorreto. Acesso negado.
                 </p>
               )}
@@ -1276,7 +1276,7 @@ export default function SysInitPage() {
           {toast.type === "success" ? (
             <CheckCircle2 className="text-emerald-400 shrink-0" size={18} />
           ) : (
-            <AlertCircle className="text-rose-400 shrink-0" size={18} />
+            <AlertCircle className="text-red-400 shrink-0" size={18} />
           )}
           <span className="text-xs sm:text-sm font-semibold text-zinc-100">
             {toast.message}
@@ -1339,7 +1339,7 @@ export default function SysInitPage() {
                 <CalendarDays size={14} />
                 <span>Calendário</span>
                 {overdueTenantsCount > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-500 text-white font-black">
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-500 text-white font-black">
                     {overdueTenantsCount}
                   </span>
                 )}
@@ -1406,7 +1406,7 @@ export default function SysInitPage() {
             <SysTooltip content="Bloquear painel e exigir PIN novamente">
               <button
                 onClick={handleLockSession}
-                className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-500/40 transition active:scale-95"
+                className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 hover:border-red-500/40 transition active:scale-95"
                 aria-label="Bloquear Painel"
               >
                 <LogOut size={16} />
@@ -1439,16 +1439,16 @@ export default function SysInitPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-zinc-900/75 border border-rose-500/20 px-3.5 py-3 flex items-center justify-between gap-2 shadow-sm">
+          <div className="rounded-2xl bg-zinc-900/75 border border-red-500/20 px-3.5 py-3 flex items-center justify-between gap-2 shadow-sm">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">
                 Em Atraso
               </p>
-              <p className="text-lg sm:text-xl font-black text-rose-400 mt-0.5">
+              <p className="text-lg sm:text-xl font-black text-red-400 mt-0.5">
                 {overdueTenantsCount}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
               <AlertCircle size={18} />
             </div>
           </div>
@@ -1635,7 +1635,7 @@ export default function SysInitPage() {
                       type="button"
                       disabled={bulkStatusLoading}
                       onClick={() => handleBulkStatusChange("suspended")}
-                      className="px-3 py-1.5 rounded-xl font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 disabled:opacity-40 transition flex items-center gap-1 active:scale-95"
+                      className="px-3 py-1.5 rounded-xl font-bold bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 disabled:opacity-40 transition flex items-center gap-1 active:scale-95"
                     >
                       <Ban size={13} /> Suspender Lote
                     </button>
@@ -1751,7 +1751,7 @@ export default function SysInitPage() {
                         isSelected
                           ? "border-emerald-500/80 ring-1 ring-emerald-500/35"
                           : vencido
-                          ? "border-rose-500/40"
+                          ? "border-red-500/40"
                           : "border-zinc-800/90"
                       } rounded-2xl p-4 sm:p-5 hover:border-emerald-500/45 transition-all group relative overflow-hidden flex flex-col justify-between shadow-lg`}
                     >
@@ -1759,7 +1759,7 @@ export default function SysInitPage() {
                         className={`absolute top-0 left-0 w-1.5 h-full ${
                           t.status === "active"
                             ? vencido
-                              ? "bg-rose-500"
+                              ? "bg-red-500"
                               : "bg-emerald-500"
                             : "bg-zinc-600"
                         }`}
@@ -1804,7 +1804,7 @@ export default function SysInitPage() {
                             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
                               t.status === "active"
                                 ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                                : "bg-rose-500/15 text-rose-300 border border-rose-500/30"
+                                : "bg-red-500/15 text-red-300 border border-red-500/30"
                             }`}
                           >
                             {t.status === "active" ? "Ativa" : "Suspensa"}
@@ -1941,7 +1941,7 @@ export default function SysInitPage() {
                             <span
                               className={`font-semibold ${
                                 vencido
-                                  ? "text-rose-400 font-bold"
+                                  ? "text-red-400 font-bold"
                                   : venceEmBreve
                                   ? "text-amber-300 font-bold"
                                   : "text-zinc-300"
@@ -2040,7 +2040,7 @@ export default function SysInitPage() {
                             <button
                               type="button"
                               onClick={() => handleDelete(t.id, t.name)}
-                              className="w-full py-2 rounded-xl bg-zinc-950/80 hover:bg-rose-500/15 text-zinc-400 hover:text-rose-400 border border-zinc-800/90 hover:border-rose-500/30 flex items-center justify-center gap-1 text-[11px] font-semibold transition active:scale-95"
+                              className="w-full py-2 rounded-xl bg-zinc-950/80 hover:bg-red-500/15 text-zinc-400 hover:text-red-400 border border-zinc-800/90 hover:border-red-500/30 flex items-center justify-center gap-1 text-[11px] font-semibold transition active:scale-95"
                             >
                               <Trash2 size={13} />
                               <span className="hidden min-[380px]:inline">
@@ -2160,7 +2160,7 @@ export default function SysInitPage() {
                 </div>
 
                 {errorMsg && (
-                  <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 mb-6 flex items-start space-x-3 text-rose-400 text-sm">
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 flex items-start space-x-3 text-red-400 text-sm">
                     <AlertCircle size={18} className="shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold block mb-0.5">
@@ -2392,7 +2392,7 @@ export default function SysInitPage() {
               </div>
 
               {errorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 mb-6 text-rose-400 text-sm">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-red-400 text-sm">
                   {errorMsg}
                 </div>
               )}
@@ -2433,7 +2433,7 @@ export default function SysInitPage() {
                             onClick={() =>
                               setEditingTenant({ ...editingTenant, logo: "" })
                             }
-                            className="text-xs text-rose-400 hover:underline px-2 py-1"
+                            className="text-xs text-red-400 hover:underline px-2 py-1"
                           >
                             Remover
                           </button>
@@ -3012,7 +3012,7 @@ export default function SysInitPage() {
                                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                                     u.active
                                       ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                                      : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                                      : "bg-red-500/15 text-red-400 border border-red-500/30"
                                   }`}
                                 >
                                   {u.active ? "Ativo" : "Bloqueado"}
@@ -3082,7 +3082,7 @@ export default function SysInitPage() {
                                     onClick={() =>
                                       handleDeleteUser(u.id, u.email)
                                     }
-                                    className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-rose-400"
+                                    className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-red-400"
                                   >
                                     <Trash2 size={14} />
                                   </button>
@@ -3130,7 +3130,7 @@ export default function SysInitPage() {
                                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                         u.active
                                           ? "bg-emerald-500/15 text-emerald-400"
-                                          : "bg-rose-500/15 text-rose-400"
+                                          : "bg-red-500/15 text-red-400"
                                       }`}
                                     >
                                       {u.active ? "Ativo" : "Bloqueado"}
@@ -3203,7 +3203,7 @@ export default function SysInitPage() {
                                           onClick={() =>
                                             handleDeleteUser(u.id, u.email)
                                           }
-                                          className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg bg-zinc-900 border border-zinc-800"
+                                          className="text-zinc-500 hover:text-red-400 p-1.5 rounded-lg bg-zinc-900 border border-zinc-800"
                                         >
                                           <Trash2 size={13} />
                                         </button>
@@ -3378,7 +3378,7 @@ export default function SysInitPage() {
                           <span className="text-xl sm:text-2xl font-extrabold text-white mt-1 block">
                             {tenantStats.clientesCount}
                           </span>
-                          <span className="text-[11px] text-rose-400">
+                          <span className="text-[11px] text-red-400">
                             {tenantStats.blacklistCount} na Blacklist
                           </span>
                         </div>
@@ -3398,10 +3398,10 @@ export default function SysInitPage() {
 
                         <div className="bg-zinc-950/70 border border-zinc-800/80 rounded-2xl p-4">
                           <span className="text-[10px] uppercase tracking-wider text-zinc-500 flex items-center gap-1 font-bold">
-                            <Clock size={12} className="text-rose-400" />{" "}
+                            <Clock size={12} className="text-red-400" />{" "}
                             Parcelas
                           </span>
-                          <span className="text-xl sm:text-2xl font-extrabold text-rose-400 mt-1 block">
+                          <span className="text-xl sm:text-2xl font-extrabold text-red-400 mt-1 block">
                             {tenantStats.parcelasAtrasadasCount} atrasadas
                           </span>
                           <span className="text-[11px] text-zinc-400">
@@ -3620,7 +3620,7 @@ export default function SysInitPage() {
                             <button
                               type="button"
                               onClick={() => handleDeleteBackup(b.filename)}
-                              className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                              className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -3661,11 +3661,11 @@ export default function SysInitPage() {
                     autoFocus
                     iconSize={18}
                     inputClassName={`bg-zinc-950 border ${
-                      sqlPinError ? "border-rose-500" : "border-zinc-800"
+                      sqlPinError ? "border-red-500" : "border-zinc-800"
                     } rounded-xl pl-4 py-3 text-center text-white tracking-widest focus:outline-none focus:border-emerald-500`}
                   />
                   {sqlPinError && (
-                    <p className="text-rose-400 text-xs">
+                    <p className="text-red-400 text-xs">
                       Senha SQL incorreta.
                     </p>
                   )}
@@ -3970,7 +3970,7 @@ export default function SysInitPage() {
                     {/* Resultados da Query */}
                     <div className="bg-zinc-900/75 border border-emerald-500/20 rounded-2xl p-4 flex-1 flex flex-col min-h-[380px] overflow-hidden">
                       {sqlError && (
-                        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-rose-400 text-xs font-mono whitespace-pre-wrap">
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-400 text-xs font-mono whitespace-pre-wrap">
                           {sqlError}
                         </div>
                       )}
@@ -4252,7 +4252,7 @@ export default function SysInitPage() {
                                                       pkVal
                                                     )
                                                   }
-                                                  className="p-1 text-zinc-500 hover:text-rose-400"
+                                                  className="p-1 text-zinc-500 hover:text-red-400"
                                                 >
                                                   <Trash2 size={12} />
                                                 </button>
@@ -4378,7 +4378,7 @@ export default function SysInitPage() {
                   <span
                     className={`absolute -top-1 -right-2 px-1 min-w-[15px] h-[15px] rounded-full text-[9px] font-black flex items-center justify-center ${
                       item.badgeRose
-                        ? "bg-rose-500 text-white"
+                        ? "bg-red-500 text-white"
                         : "bg-emerald-500 text-zinc-950"
                     }`}
                   >
@@ -4462,7 +4462,7 @@ export default function SysInitPage() {
                           <span>Atualizado</span>
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 bg-rose-500/15 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-bold shrink-0">
+                        <span className="px-2.5 py-1 bg-red-500/15 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold shrink-0">
                           Erro
                         </span>
                       )}

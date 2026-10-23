@@ -393,9 +393,9 @@ export default function NovoClientePage() {
                 id="blacklist"
                 name="blacklist"
                 value="true"
-                className="w-4 h-4 accent-rose-600 cursor-pointer"
+                className="w-4 h-4 accent-red-600 cursor-pointer"
               />
-              <label htmlFor="blacklist" className="text-xs font-bold text-rose-600 uppercase tracking-wider cursor-pointer">
+              <label htmlFor="blacklist" className="text-xs font-bold text-red-600 uppercase tracking-wider cursor-pointer">
                 Adicionar à Lista Negra (Bloqueado)
               </label>
             </div>
@@ -466,7 +466,7 @@ export default function NovoClientePage() {
                   setFotoPreview(null);
                   setFotoBase64(null);
                 }}
-                className="absolute top-2 right-2 bg-rose-500 text-white p-1.5 rounded-full hover:bg-rose-600 transition-colors shadow cursor-pointer"
+                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors shadow cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -536,7 +536,7 @@ export default function NovoClientePage() {
                   <div key={doc.id} className="relative group border border-emerald-500/30 rounded-xl overflow-hidden aspect-video sm:aspect-square flex items-center justify-center bg-slate-50">
                     {isPdf ? (
                       <div className="flex flex-col items-center justify-center p-4">
-                        <span className="text-rose-500 font-bold">PDF</span>
+                        <span className="text-red-500 font-bold">PDF</span>
                         <span className="text-xs text-emerald-600 mt-1 font-semibold">Novo</span>
                       </div>
                     ) : (
@@ -545,7 +545,7 @@ export default function NovoClientePage() {
                     <button
                       type="button"
                       onClick={() => removeNovoDoc(doc.id)}
-                      className="absolute top-2 right-2 bg-rose-500 hover:bg-rose-600 text-white p-1 rounded-full shadow cursor-pointer"
+                      className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow cursor-pointer"
                     >
                       <X className="w-3 h-3" />
                     </button>

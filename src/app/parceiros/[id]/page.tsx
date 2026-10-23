@@ -206,7 +206,7 @@ export default async function ParceiroDetailsPage({ params }: { params: Promise<
                             Compensado
                           </span>
                         ) : cheque.status === "devolvido" ? (
-                          <span className="bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+                          <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full uppercase">
                             Devolvido
                           </span>
                         ) : (

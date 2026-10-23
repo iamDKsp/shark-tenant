@@ -262,7 +262,7 @@ export default function ModalCadastrarCheque({ isOpen, onClose, clientes, parcei
                 {fotoBase64 ? (
                   <div className="relative inline-block">
                     <img src={fotoBase64} alt="Preview" className="h-32 rounded-xl object-cover border border-emerald-200" />
-                    <button type="button" onClick={() => setFotoBase64("")} className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 hover:bg-rose-600 cursor-pointer">
+                    <button type="button" onClick={() => setFotoBase64("")} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 cursor-pointer">
                       <X className="w-4 h-4" />
                     </button>
                   </div>

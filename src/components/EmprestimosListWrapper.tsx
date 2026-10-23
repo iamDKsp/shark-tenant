@@ -619,10 +619,10 @@ export default function EmprestimosListWrapper({
       bgClass = "bg-slate-50/50";
       textColor = "text-slate-500";
     } else if (isAtrasado) {
-      accentColor = "bg-rose-500";
-      borderColor = "border-rose-200";
+      accentColor = "bg-red-500";
+      borderColor = "border-red-200";
       bgClass = "bg-white";
-      textColor = "text-rose-600";
+      textColor = "text-red-600";
     } else if (isCarencia) {
       accentColor = "bg-amber-500";
       borderColor = "border-amber-200";
@@ -665,7 +665,7 @@ export default function EmprestimosListWrapper({
                 <CheckCircle2 className="w-3 h-3" /> Quitado
               </span>
             ) : isAtrasado ? (
-              <span className="flex items-center gap-1 bg-rose-100 text-rose-700 text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
                 <AlertCircle className="w-3 h-3" /> {modoCarencia ? `Atrasado (+${emp.diasAtrasado}d)` : "Atrasado"}
               </span>
             ) : isCarencia ? (
@@ -765,7 +765,7 @@ export default function EmprestimosListWrapper({
     let textColor = "text-emerald-600";
 
     if (temAtrasado) {
-      accentColor = "bg-rose-500"; borderColor = "border-rose-200"; textColor = "text-rose-600";
+      accentColor = "bg-red-500"; borderColor = "border-red-200"; textColor = "text-red-600";
     } else if (temCarencia) {
       accentColor = "bg-amber-500"; borderColor = "border-amber-200"; bgClass = "bg-amber-50/30"; textColor = "text-amber-700";
     } else if (todosPausados) {
@@ -795,7 +795,7 @@ export default function EmprestimosListWrapper({
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="text-sm font-black text-slate-900 tracking-tight">{cliente.nome}</span>
               {temAtrasado ? (
-                <span className="flex items-center gap-1 bg-rose-100 text-rose-700 text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
                   <AlertCircle className="w-3 h-3" /> {qtdAtrasados === emps.length ? "Atrasado" : `${qtdAtrasados} atrasado${qtdAtrasados !== 1 ? "s" : ""}`}
                 </span>
               ) : temCarencia ? (
@@ -945,7 +945,7 @@ export default function EmprestimosListWrapper({
                   mais_distante: <Calendar className="w-4 h-4" />,
                   maior_juros: <TrendingUp className="w-4 h-4 text-amber-500" />,
                   menor_juros: <TrendingUp className="w-4 h-4 text-slate-400 rotate-180" />,
-                  mais_atrasados: <AlertCircle className="w-4 h-4 text-rose-500" />,
+                  mais_atrasados: <AlertCircle className="w-4 h-4 text-red-500" />,
                 };
                 const isActive = sortOption === key;
                 return (
@@ -1034,7 +1034,7 @@ export default function EmprestimosListWrapper({
             },
             { id: "ontem"     as StatusFilter, label: "Ontem",      sublabel: "Atrasados",     color: "orange"  },
             { id: "hoje"      as StatusFilter, label: "Hoje",       sublabel: "Vencem",         color: "amber"   },
-            { id: "quitados"  as StatusFilter, label: "Quitados",   sublabel: "Pagos",          color: "blue"    },
+            { id: "quitados"  as StatusFilter, label: "Quitados",   sublabel: "Pagos",          color: "teal"    },
             { id: "pausados"  as StatusFilter, label: "Pausados",   sublabel: "Acordos",        color: "yellow"  },
           ] as const).map((tab) => {
             const isSelected = statusFilter === tab.id;
@@ -1049,10 +1049,10 @@ export default function EmprestimosListWrapper({
                 className={`flex flex-col items-center justify-center gap-0.5 py-2.5 px-1 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
                   isSelected
                     ? tab.color === "emerald" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20"
-                    : tab.color === "rose"    ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                    : tab.color === "rose"    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
                     : tab.color === "orange"  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
                     : tab.color === "amber"   ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
-                    : tab.color === "blue"    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                    : tab.color === "teal"    ? "bg-teal-600 text-white shadow-lg shadow-teal-600/20"
                     : tab.color === "yellow"  ? "bg-yellow-500 text-white shadow-lg shadow-yellow-500/20"
                     : "bg-slate-700 text-white shadow-lg"
                     : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
@@ -1061,10 +1061,10 @@ export default function EmprestimosListWrapper({
                 <span className={`text-lg font-black leading-none ${
                   isSelected ? "text-white" :
                   tab.color === "emerald" ? "text-emerald-600" :
-                  tab.color === "rose"    ? "text-rose-500" :
+                  tab.color === "rose"    ? "text-red-500" :
                   tab.color === "orange"  ? "text-orange-500" :
                   tab.color === "amber"   ? "text-amber-500" :
-                  tab.color === "blue"    ? "text-blue-500" :
+                  tab.color === "teal"    ? "text-teal-500" :
                   tab.color === "yellow"  ? "text-yellow-600" :
                   "text-slate-600"
                 }`}>{count}</span>
@@ -1080,11 +1080,11 @@ export default function EmprestimosListWrapper({
           {([
             { id: "todos"        as StatusFilter, label: "Todos",      sublabel: "Empréstimos",       color: "slate",   count: contadores.todos },
             { id: "carencia"     as StatusFilter, label: "Carência",   sublabel: "Até 30 dias",       color: "emerald", count: contadores.carencia },
-            { id: "carencia_5"   as StatusFilter, label: "+5 Dias",    sublabel: "De carência",       color: "sky",     count: contadores.carencia_5 },
+            { id: "carencia_5"   as StatusFilter, label: "+5 Dias",    sublabel: "De carência",       color: "teal",    count: contadores.carencia_5 },
             { id: "carencia_10"  as StatusFilter, label: "+10 Dias",   sublabel: "De carência",       color: "amber",   count: contadores.carencia_10 },
             { id: "carencia_15"  as StatusFilter, label: "+15 Dias",   sublabel: "De carência",       color: "orange",  count: contadores.carencia_15 },
             { id: "atrasados_30" as StatusFilter, label: "Atrasados",  sublabel: "30 dias carência",  color: "rose",    count: contadores.carencia_atrasados_30 },
-            { id: "quitados"     as StatusFilter, label: "Quitados",   sublabel: "Pagos",             color: "blue",    count: contadores.quitados },
+            { id: "quitados"     as StatusFilter, label: "Quitados",   sublabel: "Pagos",             color: "teal",    count: contadores.quitados },
             { id: "pausados"     as StatusFilter, label: "Pausados",   sublabel: "Acordos",           color: "yellow",  count: contadores.pausados },
           ] as const).map((tab) => {
             const isSelected = statusFilter === tab.id;
@@ -1095,11 +1095,10 @@ export default function EmprestimosListWrapper({
                 className={`flex flex-col items-center justify-center gap-0.5 py-2.5 px-1 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
                   isSelected
                     ? tab.color === "emerald" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20"
-                    : tab.color === "sky"     ? "bg-sky-600 text-white shadow-lg shadow-sky-600/20"
+                    : tab.color === "teal"    ? "bg-teal-600 text-white shadow-lg shadow-teal-600/20"
                     : tab.color === "amber"   ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
                     : tab.color === "orange"  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                    : tab.color === "rose"    ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
-                    : tab.color === "blue"    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                    : tab.color === "rose"    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
                     : tab.color === "yellow"  ? "bg-yellow-500 text-white shadow-lg shadow-yellow-500/20"
                     : "bg-slate-700 text-white shadow-lg"
                     : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
@@ -1108,11 +1107,10 @@ export default function EmprestimosListWrapper({
                 <span className={`text-base sm:text-lg font-black leading-none ${
                   isSelected ? "text-white" :
                   tab.color === "emerald" ? "text-emerald-600" :
-                  tab.color === "sky"     ? "text-sky-600" :
+                  tab.color === "teal"    ? "text-teal-500" :
                   tab.color === "amber"   ? "text-amber-500" :
                   tab.color === "orange"  ? "text-orange-500" :
-                  tab.color === "rose"    ? "text-rose-500" :
-                  tab.color === "blue"    ? "text-blue-500" :
+                  tab.color === "rose"    ? "text-red-500" :
                   tab.color === "yellow"  ? "text-yellow-600" :
                   "text-slate-600"
                 }`}>{tab.count}</span>
@@ -1130,9 +1128,9 @@ export default function EmprestimosListWrapper({
 
       {/* Subfiltros de Atraso Cíclico (>5d, >10d, >15d, >30d) - APENAS QUANDO MODO CARÊNCIA ESTIVER DESATIVADO */}
       {!modoCarencia && statusFilter === "atrasados" && (
-        <div className="flex flex-wrap items-center gap-2 p-2.5 bg-rose-50/80 border border-rose-200 rounded-2xl text-xs animate-in fade-in duration-150">
-          <span className="text-rose-800 font-extrabold flex items-center gap-1.5 pl-1">
-            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+        <div className="flex flex-wrap items-center gap-2 p-2.5 bg-red-50/80 border border-red-200 rounded-2xl text-xs animate-in fade-in duration-150">
+          <span className="text-red-800 font-extrabold flex items-center gap-1.5 pl-1">
+            <AlertCircle className="w-3.5 h-3.5 text-red-600" />
             Filtro de Atraso:
           </span>
           {([
@@ -1151,15 +1149,15 @@ export default function EmprestimosListWrapper({
                 onClick={() => { setDiasAtraso(opt.val); setCurrentPage("1"); }}
                 className={`px-3 py-1 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                   isCurrent
-                    ? "bg-rose-600 text-white shadow-sm font-black"
-                    : "bg-white text-rose-700 hover:bg-rose-100 border border-rose-200"
+                    ? "bg-red-600 text-white shadow-sm font-black"
+                    : "bg-white text-red-700 hover:bg-red-100 border border-red-200"
                 }`}
               >
                 {opt.label} ({countOpt})
               </button>
             );
           })}
-          <span className="ml-auto text-[11px] text-rose-500 font-semibold hidden md:inline">
+          <span className="ml-auto text-[11px] text-red-500 font-semibold hidden md:inline">
             Clique no botão &quot;Atrasados&quot; para avançar no ciclo (+5d, +10d, +15d, +30d)
           </span>
         </div>
@@ -1174,12 +1172,12 @@ export default function EmprestimosListWrapper({
               : `${grupos.length} cliente${grupos.length !== 1 ? "s" : ""} · ${emprestimosFiltrados.length} empréstimo${emprestimosFiltrados.length !== 1 ? "s" : ""}`}
           </span>
           {!modoCarencia && statusFilter === "atrasados" && diasAtraso !== "0" && (
-            <span className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md font-black">
+            <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-md font-black">
               Atrasados &gt; {diasAtraso} dias
             </span>
           )}
           {modoCarencia && statusFilter === "carencia_5" && (
-            <span className="bg-sky-100 text-sky-800 px-2 py-0.5 rounded-md font-black">
+            <span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-md font-black">
               Carência &gt; 5 dias
             </span>
           )}
@@ -1194,7 +1192,7 @@ export default function EmprestimosListWrapper({
             </span>
           )}
           {modoCarencia && statusFilter === "atrasados_30" && (
-            <span className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md font-black">
+            <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-md font-black">
               Atrasados (30+ dias de carência)
             </span>
           )}
@@ -1353,9 +1351,9 @@ export default function EmprestimosListWrapper({
               </div>
 
               {renewError && (
-                <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-3">
-                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <p className="text-xs text-rose-700 font-medium">{renewError}</p>
+                <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3">
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-700 font-medium">{renewError}</p>
                 </div>
               )}
             </div>

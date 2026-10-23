@@ -52,7 +52,7 @@ function dueTone(tenant: Tenant, now: Date) {
     due.getUTCDate()
   );
   if (dueDay < today) {
-    return "border-rose-500/40 bg-rose-500/10 text-rose-200 hover:border-rose-500/70";
+    return "border-red-500/40 bg-red-500/10 text-red-200 hover:border-red-500/70";
   }
   if (dueDay.getTime() === today.getTime()) {
     return "border-amber-500/50 bg-amber-500/15 text-amber-100 hover:border-amber-400";
@@ -79,7 +79,7 @@ function dotColorForDay(items: Tenant[], now: Date): string {
     else hasActive = true;
   }
 
-  if (hasOverdue) return "bg-rose-400";
+  if (hasOverdue) return "bg-red-400";
   if (hasToday) return "bg-amber-400";
   if (hasActive) return "bg-emerald-400";
   return "bg-zinc-500";
@@ -535,8 +535,8 @@ export function TenantBillingCalendar({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-3.5 sm:px-4 py-3 text-[11px] sm:text-xs text-zinc-400 bg-zinc-950/50 border-t border-zinc-800/80">
-          <span className="flex items-center gap-1.5 text-rose-300">
-            <span className="w-2 h-2 rounded-full bg-rose-400" /> Em atraso
+          <span className="flex items-center gap-1.5 text-red-300">
+            <span className="w-2 h-2 rounded-full bg-red-400" /> Em atraso
           </span>
           <span className="flex items-center gap-1.5 text-amber-200">
             <span className="w-2 h-2 rounded-full bg-amber-400" /> Vence hoje
@@ -553,16 +553,16 @@ export function TenantBillingCalendar({
       </section>
 
       <aside className="grid gap-4 md:grid-cols-2">
-        <section className="rounded-2xl border border-rose-500/25 bg-rose-950/15 p-4">
+        <section className="rounded-2xl border border-red-500/25 bg-red-950/15 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-rose-300">
+            <div className="flex items-center gap-2 text-red-300">
               <AlertTriangle size={17} />
               <h3 className="font-bold text-sm">
                 Mensalidades em atraso ({overdue.length})
               </h3>
             </div>
             {overdue.length > 0 && (
-              <span className="text-xs font-mono text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+              <span className="text-xs font-mono text-red-300 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
                 {formatCurrency(
                   overdue.reduce(
                     (acc, t) => acc + Number(t.mensalidadeValor || 0),
@@ -576,7 +576,7 @@ export function TenantBillingCalendar({
             {overdue.map((tenant) => (
               <div
                 key={tenant.id}
-                className="flex items-center justify-between gap-2 rounded-xl bg-zinc-950/60 border border-rose-500/20 p-3 hover:border-rose-500/40 transition"
+                className="flex items-center justify-between gap-2 rounded-xl bg-zinc-950/60 border border-red-500/20 p-3 hover:border-red-500/40 transition"
               >
                 <button
                   type="button"
@@ -586,7 +586,7 @@ export function TenantBillingCalendar({
                   <p className="truncate text-xs font-bold text-zinc-100">
                     {tenant.nomeFantasia || tenant.name || tenant.databaseName}
                   </p>
-                  <p className="text-[11px] text-rose-300 mt-0.5">
+                  <p className="text-[11px] text-red-300 mt-0.5">
                     Venceu em{" "}
                     {new Date(tenant.mensalidadeVencimento).toLocaleDateString(
                       "pt-BR",

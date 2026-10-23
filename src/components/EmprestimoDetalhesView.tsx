@@ -313,10 +313,10 @@ export default function EmprestimoDetalhesView({
 
   const STATUS = {
     quitado:  { label: "Quitado",        icon: <CheckCircle2 className="w-3 h-3" />, bg: "bg-emerald-50 text-emerald-700 border-emerald-200", bar: "bg-emerald-500", stripe: "from-emerald-500/5 to-transparent" },
-    atrasado: { label: modoCarencia ? `Atrasado (+${maxAtrasoDias}d)` : "Atrasado", icon: <AlertCircle className="w-3 h-3" />, bg: "bg-rose-50 text-rose-700 border-rose-200", bar: "bg-rose-500", stripe: "from-rose-500/5 to-transparent" },
+    atrasado: { label: modoCarencia ? `Atrasado (+${maxAtrasoDias}d)` : "Atrasado", icon: <AlertCircle className="w-3 h-3" />, bg: "bg-red-50 text-red-700 border-red-200", bar: "bg-red-500", stripe: "from-red-500/5 to-transparent" },
     carencia: { label: `Em Carência (+${maxAtrasoDias}d)`, icon: <Clock className="w-3 h-3" />, bg: "bg-amber-50 text-amber-800 border-amber-200", bar: "bg-amber-500", stripe: "from-amber-500/5 to-transparent" },
     hoje:     { label: "Vence Hoje",      icon: <Clock className="w-3 h-3" />, bg: "bg-amber-50 text-amber-700 border-amber-200", bar: "bg-amber-500", stripe: "from-amber-500/5 to-transparent" },
-    emDia:    { label: "Em Dia",          icon: <BadgeCheck className="w-3 h-3" />, bg: "bg-blue-50 text-blue-700 border-blue-200", bar: "bg-emerald-500", stripe: "from-blue-500/5 to-transparent" },
+    emDia:    { label: "Em Dia",          icon: <BadgeCheck className="w-3 h-3" />, bg: "bg-emerald-50 text-emerald-700 border-emerald-200", bar: "bg-emerald-500", stripe: "from-emerald-500/5 to-transparent" },
     pausado:  { label: "Pausado",         icon: <PauseCircle className="w-3 h-3" />, bg: "bg-yellow-50 text-yellow-700 border-yellow-200", bar: "bg-yellow-400", stripe: "from-yellow-500/5 to-transparent" },
   };
   const s = STATUS[isPausado ? "pausado" : statusReal === "quitado" ? "quitado" : statusReal === "carencia" ? "carencia" : atrasado ? "atrasado" : venceHoje ? "hoje" : "emDia"];
@@ -610,7 +610,7 @@ export default function EmprestimoDetalhesView({
     </button>
   );
   const BtnSecondary = ({ onClick, children, danger }: any) => (
-    <button onClick={onClick} disabled={isPending} className={`flex items-center justify-center gap-1.5 w-full py-2.5 text-sm font-black tracking-wide rounded-xl border transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer ${danger ? "bg-slate-50 text-rose-600 border-slate-200 hover:bg-rose-50 hover:border-rose-300" : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"}`}>
+    <button onClick={onClick} disabled={isPending} className={`flex items-center justify-center gap-1.5 w-full py-2.5 text-sm font-black tracking-wide rounded-xl border transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer ${danger ? "bg-slate-50 text-red-600 border-slate-200 hover:bg-red-50 hover:border-red-300" : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"}`}>
       {children}
     </button>
   );
@@ -645,7 +645,7 @@ export default function EmprestimoDetalhesView({
           >
             <Pencil className="w-3.5 h-3.5" /> Editar
           </Link>
-          <button onClick={() => openModal("delete")} className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer">
+          <button onClick={() => openModal("delete")} className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer">
             <Trash2 className="w-3.5 h-3.5" /> Excluir
           </button>
         </div>
@@ -683,7 +683,7 @@ export default function EmprestimoDetalhesView({
                 </span>
                 {statusReal !== "quitado" && (
                   <div className={`text-right text-xs font-black px-2.5 py-1 rounded-xl border ${
-                    diasDiff < 0 ? "bg-rose-50 text-rose-700 border-rose-200" :
+                    diasDiff < 0 ? "bg-red-50 text-red-700 border-red-200" :
                     diasDiff === 0 ? "bg-amber-50 text-amber-700 border-amber-200" :
                     "bg-slate-50 text-slate-600 border-slate-200"
                   }`}>
@@ -820,7 +820,7 @@ export default function EmprestimoDetalhesView({
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs font-black uppercase tracking-widest">
                   {totalRenovacoes > 0 && (
-                    <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">
+                    <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200">
                       {totalRenovacoes} {totalRenovacoes === 1 ? "renovação" : "renovações"}
                     </span>
                   )}
@@ -864,12 +864,12 @@ export default function EmprestimoDetalhesView({
                   const isMaisAtual = proximaParcelaAberta?.id === p.id;
 
                   return (
-                    <div key={p.id} className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-3.5 hover:bg-slate-50 transition-colors ${pAtras ? "bg-rose-50/40" : isMaisAtual && !isAv ? "bg-emerald-50/20" : ""}`}>
+                    <div key={p.id} className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-3.5 hover:bg-slate-50 transition-colors ${pAtras ? "bg-red-50/40" : isMaisAtual && !isAv ? "bg-emerald-50/20" : ""}`}>
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          isRenov ? "bg-purple-50 text-purple-600" :
+                          isRenov ? "bg-amber-50 text-amber-600" :
                           pPago ? "bg-emerald-50 text-emerald-600" :
-                          pAtras ? "bg-rose-50 text-rose-500" :
+                          pAtras ? "bg-red-50 text-red-500" :
                           pHoje ? "bg-amber-50 text-amber-500" :
                           isMaisAtual && !isAv ? "bg-emerald-50 text-emerald-600" :
                           "bg-slate-100 text-slate-400"
@@ -890,10 +890,10 @@ export default function EmprestimoDetalhesView({
                           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
                             <span className="text-sm font-black text-slate-900">{p.label}</span>
                             <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full border ${
-                              isRenov ? "bg-purple-50 text-purple-700 border-purple-200" :
+                              isRenov ? "bg-amber-50 text-amber-700 border-amber-200" :
                               pPago ? (pAtrasoPago ? "bg-orange-50 text-orange-700 border-orange-200" : (isAv ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-emerald-50 text-emerald-700 border-emerald-200")) :
                               isMaisAtual && !isAv ? "bg-emerald-50 text-emerald-700 border-emerald-300 font-extrabold" :
-                              pAtras ? "bg-rose-50 text-rose-700 border-rose-200" :
+                              pAtras ? "bg-red-50 text-red-700 border-red-200" :
                               pHoje ? "bg-amber-50 text-amber-700 border-amber-200" :
                               "bg-slate-100 text-slate-500 border-slate-200"
                             }`}>
@@ -936,7 +936,7 @@ export default function EmprestimoDetalhesView({
                           const a = jurosDe(p);
                           return a.juros > 0 ? (
                             <span
-                              className="text-[11px] font-black text-rose-600 bg-rose-50 border border-rose-200 rounded-full px-2 py-0.5"
+                              className="text-[11px] font-black text-red-600 bg-red-50 border border-red-200 rounded-full px-2 py-0.5"
                               title={`Juros de atraso: ${descreverRegraAtraso(regraAtraso)} × ${a.dias} dia(s)`}
                             >
                               + {fmt(a.juros)} · {a.dias}d
@@ -998,7 +998,7 @@ export default function EmprestimoDetalhesView({
               </div>
             </div>
             {emprestimo.cliente.blacklist && (
-              <div className="flex items-center gap-1.5 text-xs font-black uppercase text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase text-red-600 bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-lg">
                 <ShieldOff className="w-3 h-3" /> Lista Negra
               </div>
             )}
@@ -1016,7 +1016,7 @@ export default function EmprestimoDetalhesView({
                   : emprestimo.taxa_multa > 0
                   ? `${emprestimo.taxa_multa}% (antigo, não aplicado)`
                   : "Não cobra",
-                color: "text-rose-500",
+                color: "text-red-500",
               },
               { label: "Frequência", value: freqLabel[emprestimo.frequencia] || emprestimo.frequencia, color: "text-slate-900" },
             ].map(({ label, value, color }) => (
@@ -1069,7 +1069,7 @@ export default function EmprestimoDetalhesView({
             }
             return (
               <div className={`rounded-2xl border shadow-sm overflow-hidden ${
-                dp && urgCor === "rose" ? "bg-rose-50 border-rose-200" :
+                dp && urgCor === "rose" ? "bg-red-50 border-red-200" :
                 dp && urgCor === "amber" ? "bg-amber-50 border-amber-200" :
                 dp && urgCor === "orange" ? "bg-orange-50 border-orange-200" :
                 "bg-white border-slate-200"
@@ -1080,7 +1080,7 @@ export default function EmprestimoDetalhesView({
                     <span className="text-sm font-black text-slate-900">Data Prevista</span>
                     {dp && (
                       <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
-                        urgCor === "rose"   ? "bg-rose-100 text-rose-700 border-rose-300" :
+                        urgCor === "rose"   ? "bg-red-100 text-red-700 border-red-300" :
                         urgCor === "amber"  ? "bg-amber-100 text-amber-700 border-amber-300" :
                         urgCor === "orange" ? "bg-orange-100 text-orange-700 border-orange-300" :
                         "bg-slate-100 text-slate-600 border-slate-200"
@@ -1096,7 +1096,7 @@ export default function EmprestimoDetalhesView({
                       <button
                         onClick={handleLimparDataPrevista}
                         disabled={isSavingData}
-                        className="text-[11px] font-bold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
+                        className="text-[11px] font-bold text-red-500 hover:text-red-700 transition-colors cursor-pointer"
                       >Remover</button>
                     </div>
                   )}
@@ -1293,13 +1293,13 @@ export default function EmprestimoDetalhesView({
       {/* ── MODAL: Confirmar Exclusão ── */}
       {modal === "delete" && (
         <Modal isClosing={modalClosing} onClose={closeModal} title="Excluir Empréstimo?" subtitle="Esta ação é irreversível e não pode ser desfeita.">
-          <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl p-4">
-            <AlertTriangle className="w-5 h-5 text-rose-500 flex-shrink-0" />
-            <p className="text-xs text-rose-700 font-semibold">Todos os dados deste empréstimo, incluindo parcelas e histórico, serão permanentemente removidos.</p>
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <p className="text-xs text-red-700 font-semibold">Todos os dados deste empréstimo, incluindo parcelas e histórico, serão permanentemente removidos.</p>
           </div>
           <div className="flex gap-2">
             <button onClick={closeModal} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-black rounded-xl transition-colors cursor-pointer">Cancelar</button>
-            <button onClick={() => { closeModal(); excluir(); }} disabled={isPending} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+            <button onClick={() => { closeModal(); excluir(); }} disabled={isPending} className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
               {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Excluir Definitivamente
             </button>
           </div>
@@ -1371,12 +1371,12 @@ export default function EmprestimoDetalhesView({
               </div>
             ) : (
               <div className="space-y-4 py-1 text-center">
-                <div className="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <div className="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
                   <AlertCircle className="w-8 h-8" />
                 </div>
                 <div>
                   <h4 className="text-base font-black text-slate-900">Não foi possível renovar</h4>
-                  <p className="text-xs text-rose-600 mt-1 font-medium">{renovFeedback.erro}</p>
+                  <p className="text-xs text-red-600 mt-1 font-medium">{renovFeedback.erro}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
