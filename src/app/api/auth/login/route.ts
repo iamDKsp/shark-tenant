@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { heartPrisma } from "@/lib/heart-db";
 import { getTenantPrismaClient } from "@/lib/tenant-manager";
 import bcrypt from "bcryptjs";
-import { SignJWT } from "jose";
+import { SignJWT, jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "solucoes-financeiras-super-secret-key-2026"
@@ -10,55 +10,101 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function POST(request: Request) {
   try {
-    const { email, password, rememberMe } = await request.json();
+    const body = await request.json();
+    const { email, password, rememberMe, biometricToken } = body;
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "E-mail e senha são obrigatórios" },
-        { status: 400 }
-      );
-    }
+    let user = null;
 
-    const normalizedEmail = String(email).trim().toLowerCase();
+    // 1. Fluxo de autenticação via Face ID / Biometria (WebAuthn + Token assinado)
+    if (biometricToken) {
+      try {
+        const { payload } = await jwtVerify(String(biometricToken), JWT_SECRET);
+        if (payload.purpose !== "biometric_auth" || !payload.sub) {
+          return NextResponse.json(
+            { error: "Credencial biométrica inválida ou expirada." },
+            { status: 401 }
+          );
+        }
 
-    const user = await heartPrisma.user.findFirst({
-      where: {
-        email: {
-          equals: normalizedEmail,
-          mode: "insensitive",
+        user = await heartPrisma.user.findUnique({
+          where: { id: String(payload.sub) },
+          include: { tenant: true },
+        });
+      } catch {
+        return NextResponse.json(
+          { error: "Sessão biométrica expirada. Entre com sua senha para reativar o Face ID." },
+          { status: 401 }
+        );
+      }
+
+      if (!user || !user.active) {
+        return NextResponse.json(
+          { error: "Usuário inativo ou não encontrado." },
+          { status: 401 }
+        );
+      }
+
+      if (!user.tenant || user.tenant.status !== "active") {
+        return NextResponse.json(
+          {
+            error:
+              user.tenant?.status === "suspended"
+                ? "Acesso suspenso temporariamente. Entre em contato com o administrador."
+                : "Conta da empresa inativa.",
+          },
+          { status: 403 }
+        );
+      }
+    } else {
+      // 2. Fluxo tradicional via E-mail e Senha
+      if (!email || !password) {
+        return NextResponse.json(
+          { error: "E-mail e senha são obrigatórios" },
+          { status: 400 }
+        );
+      }
+
+      const normalizedEmail = String(email).trim().toLowerCase();
+
+      user = await heartPrisma.user.findFirst({
+        where: {
+          email: {
+            equals: normalizedEmail,
+            mode: "insensitive",
+          },
         },
-      },
-      include: {
-        tenant: true,
-      },
-    });
-
-    if (!user || !user.active) {
-      return NextResponse.json(
-        { error: "Credenciais inválidas ou usuário inativo" },
-        { status: 401 }
-      );
-    }
-
-    if (!user.tenant || user.tenant.status !== "active") {
-      return NextResponse.json(
-        {
-          error:
-            user.tenant?.status === "suspended"
-              ? "Acesso suspenso temporariamente. Entre em contato com o administrador."
-              : "Conta da empresa inativa.",
+        include: {
+          tenant: true,
         },
-        { status: 403 }
-      );
-    }
+      });
 
-    const isValid = await bcrypt.compare(password, user.password);
+      if (!user || !user.active) {
+        return NextResponse.json(
+          { error: "Credenciais inválidas ou usuário inativo" },
+          { status: 401 }
+        );
+      }
 
-    if (!isValid) {
-      return NextResponse.json(
-        { error: "Credenciais inválidas" },
-        { status: 401 }
-      );
+      if (!user.tenant || user.tenant.status !== "active") {
+        return NextResponse.json(
+          {
+            error:
+              user.tenant?.status === "suspended"
+                ? "Acesso suspenso temporariamente. Entre em contato com o administrador."
+                : "Conta da empresa inativa.",
+          },
+          { status: 403 }
+        );
+      }
+
+      const isValid = await bcrypt.compare(password, user.password);
+
+      if (!isValid) {
+        return NextResponse.json(
+          { error: "Credenciais inválidas" },
+          { status: 401 }
+        );
+      }
     }
 
     // Sincroniza registro de perfil no banco isolado do tenant (compatibilidade interna)
@@ -82,8 +128,9 @@ export async function POST(request: Request) {
     }
 
     // Tempo de expiração: 30 dias se "Lembrar-me" estiver marcado, senão 24h
-    const tokenExp = rememberMe ? "30d" : "24h";
-    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
+    const isRemember = rememberMe !== false;
+    const tokenExp = isRemember ? "30d" : "24h";
+    const cookieMaxAge = isRemember ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
 
     const token = await new SignJWT({
       sub: user.id,
@@ -97,8 +144,21 @@ export async function POST(request: Request) {
       .setExpirationTime(tokenExp)
       .sign(JWT_SECRET);
 
+    // Token dedicado para autenticação via Face ID / Biometria (WebAuthn) neste dispositivo
+    const issuedBiometricToken = await new SignJWT({
+      sub: user.id,
+      email: user.email,
+      nome: user.name,
+      tenantId: user.tenantId,
+      purpose: "biometric_auth",
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("90d")
+      .sign(JWT_SECRET);
+
     const response = NextResponse.json({
       success: true,
+      biometricToken: issuedBiometricToken,
       user: {
         id: user.id,
         name: user.name,
