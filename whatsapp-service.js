@@ -3,6 +3,8 @@ const {
   useMultiFileAuthState,
   DisconnectReason,
   makeCacheableSignalKeyStore,
+  fetchLatestWaWebVersion,
+  fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
 const http = require("http");
 const QRCode = require("qrcode");
@@ -19,7 +21,42 @@ const fs = require("fs");
 
 const BASE_AUTH_DIR = path.join(__dirname, "auth_info_baileys");
 
-// Map<tenantId, { tenantId, sock, connectionStatus, lastQr, isResetting, reconnectDelay, userInfo }>
+// Cache da versão do WhatsApp Web para evitar erro 405 (versão defasada no pacote Baileys)
+let cachedWaVersion = null;
+let cachedWaVersionAt = 0;
+const WA_VERSION_TTL_MS = 6 * 60 * 60 * 1000; // 6 horas
+
+async function getLatestWaVersion(forceRefresh = false) {
+  const now = Date.now();
+  if (!forceRefresh && cachedWaVersion && now - cachedWaVersionAt < WA_VERSION_TTL_MS) {
+    return cachedWaVersion;
+  }
+  try {
+    const waWeb = await fetchLatestWaWebVersion();
+    if (waWeb && Array.isArray(waWeb.version)) {
+      cachedWaVersion = waWeb.version;
+      cachedWaVersionAt = now;
+      console.log(`[Baileys] Versão WA Web obtida: ${cachedWaVersion.join(".")}`);
+      return cachedWaVersion;
+    }
+  } catch (err) {
+    console.warn("[Baileys] Falha em fetchLatestWaWebVersion:", err.message);
+  }
+  try {
+    const baileysVer = await fetchLatestBaileysVersion();
+    if (baileysVer && Array.isArray(baileysVer.version)) {
+      cachedWaVersion = baileysVer.version;
+      cachedWaVersionAt = now;
+      console.log(`[Baileys] Versão Baileys obtida: ${cachedWaVersion.join(".")}`);
+      return cachedWaVersion;
+    }
+  } catch (err) {
+    console.warn("[Baileys] Falha em fetchLatestBaileysVersion:", err.message);
+  }
+  return cachedWaVersion;
+}
+
+// Map<tenantId, { tenantId, sock, connectionStatus, lastQr, isResetting, isConnecting, reconnectTimer, reconnectDelay, userInfo }>
 const sessions = new Map();
 
 function sanitizeTenantId(id) {
@@ -33,15 +70,25 @@ function getTenantAuthDir(tenantId) {
   return path.join(BASE_AUTH_DIR, tid);
 }
 
+function clearReconnectTimer(session) {
+  if (session && session.reconnectTimer) {
+    clearTimeout(session.reconnectTimer);
+    session.reconnectTimer = null;
+  }
+}
+
 function destroyTenantSocket(tenantId) {
   const tid = sanitizeTenantId(tenantId);
   const session = sessions.get(tid);
-  if (session && session.sock) {
-    try {
-      session.sock.ev.removeAllListeners();
-      session.sock.end();
-    } catch (_) {}
-    session.sock = null;
+  if (session) {
+    clearReconnectTimer(session);
+    if (session.sock) {
+      try {
+        session.sock.ev.removeAllListeners();
+        session.sock.end();
+      } catch (_) {}
+      session.sock = null;
+    }
   }
 }
 
@@ -95,13 +142,22 @@ async function connectTenant(tenantId) {
       connectionStatus: "disconnected",
       lastQr: null,
       isResetting: false,
+      isConnecting: false,
+      reconnectTimer: null,
       reconnectDelay: 3000,
       userInfo: null,
     };
     sessions.set(tid, session);
   }
 
-  if (session.isResetting) return session;
+  if (session.isResetting || session.isConnecting) return session;
+  if (session.connectionStatus === "connected" || session.connectionStatus === "qr") {
+    return session;
+  }
+
+  session.isConnecting = true;
+  session.connectionStatus = "connecting";
+  destroyTenantSocket(tid);
 
   const authDir = getTenantAuthDir(tid);
   if (!fs.existsSync(authDir)) {
@@ -109,17 +165,26 @@ async function connectTenant(tenantId) {
   }
 
   try {
-    const { state, saveCreds } = await useMultiFileAuthState(authDir);
+    const [{ state, saveCreds }, version] = await Promise.all([
+      useMultiFileAuthState(authDir),
+      getLatestWaVersion(),
+    ]);
 
-    const sock = makeWASocket({
+    const sockConfig = {
       auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys),
       },
       printQRInTerminal: false,
       defaultQueryTimeoutMs: undefined,
-    });
+    };
+    if (version) {
+      sockConfig.version = version;
+    }
+
+    const sock = makeWASocket(sockConfig);
     session.sock = sock;
+    session.isConnecting = false;
 
     sock.ev.on("connection.update", async (update) => {
       if (session.isResetting) return;
@@ -138,24 +203,37 @@ async function connectTenant(tenantId) {
       if (connection === "close") {
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-        console.log(`[${tid}] Connection closed, reconnecting: ${shouldReconnect} | delay: ${session.reconnectDelay}ms`);
+        console.log(`[${tid}] Connection closed (code=${statusCode}), reconnecting: ${shouldReconnect} | delay: ${session.reconnectDelay}ms`);
 
         if (session.isResetting) return;
 
         session.connectionStatus = "disconnected";
         session.lastQr = null;
+        clearReconnectTimer(session);
+
+        // Se o WhatsApp rejeitou por versão defasada (405), força atualizar a versão no próximo tentativa
+        if (statusCode === 405) {
+          getLatestWaVersion(true).catch(() => {});
+        }
 
         if (shouldReconnect) {
           const delay = session.reconnectDelay;
           session.reconnectDelay = Math.min(session.reconnectDelay * 2, 60000);
-          setTimeout(() => connectTenant(tid), delay);
+          session.reconnectTimer = setTimeout(() => {
+            session.reconnectTimer = null;
+            connectTenant(tid);
+          }, delay);
         } else {
           session.reconnectDelay = 3000;
           console.log(`[${tid}] Logged out from WhatsApp. Clearing auth and generating new QR.`);
           clearTenantAuthFiles(tid);
-          setTimeout(() => connectTenant(tid), 2000);
+          session.reconnectTimer = setTimeout(() => {
+            session.reconnectTimer = null;
+            connectTenant(tid);
+          }, 2000);
         }
       } else if (connection === "open") {
+        clearReconnectTimer(session);
         session.reconnectDelay = 3000;
         session.connectionStatus = "connected";
         session.lastQr = null;
@@ -173,6 +251,7 @@ async function connectTenant(tenantId) {
     sock.ev.on("creds.update", saveCreds);
   } catch (err) {
     console.error(`[${tid}] Erro ao conectar ao WhatsApp:`, err.message);
+    session.isConnecting = false;
     session.connectionStatus = "disconnected";
   }
 
@@ -298,8 +377,14 @@ const server = http.createServer(async (req, res) => {
     const tid = extractTenantId(req, url);
     let session = sessions.get(tid);
 
-    // Se a sessão ainda não existir ou nunca tiver tentado conectar, inicia agora para gerar o QR
-    if (!session || session.connectionStatus === "disconnected") {
+    // Se a sessão ainda não existir ou estiver desconectada sem reconexão em andamento, inicia agora para gerar o QR
+    if (
+      !session ||
+      (session.connectionStatus === "disconnected" &&
+        !session.isConnecting &&
+        !session.reconnectTimer &&
+        !session.isResetting)
+    ) {
       session = await connectTenant(tid);
     }
 
@@ -329,8 +414,24 @@ const server = http.createServer(async (req, res) => {
           } catch (_) {}
         }
 
-        const session = sessions.get(tid) || { tenantId: tid, reconnectDelay: 3000 };
+        let session = sessions.get(tid);
+        if (!session) {
+          session = {
+            tenantId: tid,
+            sock: null,
+            connectionStatus: "disconnected",
+            lastQr: null,
+            isResetting: false,
+            isConnecting: false,
+            reconnectTimer: null,
+            reconnectDelay: 3000,
+            userInfo: null,
+          };
+          sessions.set(tid, session);
+        }
+
         session.isResetting = true;
+        session.isConnecting = false;
         session.connectionStatus = "disconnected";
         session.lastQr = null;
         session.userInfo = null;
@@ -342,7 +443,10 @@ const server = http.createServer(async (req, res) => {
         session.reconnectDelay = 3000;
         session.isResetting = false;
 
-        setTimeout(() => connectTenant(tid), 500);
+        session.reconnectTimer = setTimeout(() => {
+          session.reconnectTimer = null;
+          connectTenant(tid);
+        }, 500);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, tenantId: tid }));
