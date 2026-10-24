@@ -18,7 +18,6 @@ import {
   Fingerprint,
   Sun,
   Moon,
-  History,
 } from "lucide-react";
 import { useSystemUiVersion } from "@/lib/theme";
 
@@ -84,9 +83,9 @@ export default function LoginPage() {
   const handleToggleUiVersion = () => {
     const next = toggleVersion();
     if (next === "classic") {
-      setThemeToast("Versão clássica (clara) restaurada");
+      setThemeToast("Modo claro ativado");
     } else {
-      setThemeToast("Nova versão escura Shark ativada");
+      setThemeToast("Modo escuro Shark ativado");
     }
   };
 
@@ -468,14 +467,19 @@ export default function LoginPage() {
   const showBiometricHud = isScanningBio || isExitingScan || isExitingCheck || isExitingSheet;
 
   return (
-    <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden overscroll-none touch-manipulation bg-[#059669] sm:bg-[#022c22] flex items-center justify-center select-none font-sans">
+    <div
+      className={`fixed inset-0 w-full h-[100dvh] overflow-hidden overscroll-none touch-manipulation flex items-center justify-center select-none font-sans transition-colors duration-300 ${
+        isClassic ? "bg-[#059669] sm:bg-[#f0fdf4]" : "bg-[#059669] sm:bg-[#022c22]"
+      }`}
+    >
       {/* ── Outer 3D Topographic Wavy Background (Tablet/Desktop Only) ── */}
       <div className="pointer-events-none fixed inset-0 hidden sm:block overflow-hidden">
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-all duration-500"
           style={{
-            background:
-              "radial-gradient(circle at 65% 25%, #059669 0%, #065f46 32%, #064e3b 62%, #022c22 100%)",
+            background: isClassic
+              ? "radial-gradient(circle at 65% 25%, #d1fae5 0%, #ecfdf5 38%, #f8fafc 74%, #e2e8f0 100%)"
+              : "radial-gradient(circle at 65% 25%, #059669 0%, #065f46 32%, #064e3b 62%, #022c22 100%)",
           }}
         />
         <svg
@@ -487,17 +491,23 @@ export default function LoginPage() {
         >
           <defs>
             <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#065f46" />
-              <stop offset="50%" stopColor="#047857" />
-              <stop offset="100%" stopColor="#022c22" />
+              <stop offset="0%" stopColor={isClassic ? "#ecfdf5" : "#065f46"} />
+              <stop offset="50%" stopColor={isClassic ? "#d1fae5" : "#047857"} />
+              <stop offset="100%" stopColor={isClassic ? "#f8fafc" : "#022c22"} />
             </linearGradient>
             <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#047857" />
-              <stop offset="50%" stopColor="#064e3b" />
-              <stop offset="100%" stopColor="#011e17" />
+              <stop offset="0%" stopColor={isClassic ? "#f0fdf4" : "#047857"} />
+              <stop offset="50%" stopColor={isClassic ? "#e2e8f0" : "#064e3b"} />
+              <stop offset="100%" stopColor={isClassic ? "#ffffff" : "#011e17"} />
             </linearGradient>
             <filter id="waveShadow" x="-10%" y="-10%" width="120%" height="120%">
-              <feDropShadow dx="10" dy="6" stdDeviation="8" floodColor="#011510" floodOpacity="0.65" />
+              <feDropShadow
+                dx="10"
+                dy="6"
+                stdDeviation="8"
+                floodColor={isClassic ? "#0f172a" : "#011510"}
+                floodOpacity={isClassic ? "0.06" : "0.65"}
+              />
             </filter>
           </defs>
           {Array.from({ length: 18 }).map((_, idx) => {
@@ -507,19 +517,29 @@ export default function LoginPage() {
                 key={idx}
                 d={`M ${-220 + offset} -80 C ${140 + offset} 180, ${40 + offset} 490, ${280 + offset} 740 C ${480 + offset} 950, ${760 + offset} 1020, ${980 + offset} 1120 L -300 1120 Z`}
                 fill={idx % 2 === 0 ? "url(#waveGrad1)" : "url(#waveGrad2)"}
-                stroke="rgba(52, 211, 153, 0.14)"
+                stroke={
+                  isClassic ? "rgba(16, 185, 129, 0.18)" : "rgba(52, 211, 153, 0.14)"
+                }
                 strokeWidth="1.2"
                 filter="url(#waveShadow)"
               />
             );
           })}
         </svg>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[860px] rounded-full bg-emerald-400/15 blur-[90px]" />
+        <div
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[860px] rounded-full blur-[90px] ${
+            isClassic ? "bg-emerald-400/25" : "bg-emerald-400/15"
+          }`}
+        />
       </div>
 
       {/* ── App Screen Container (100% Full Native Viewport on Mobile, Sleek Card on Desktop) ── */}
       <div
-        className={`relative z-10 w-full h-full sm:w-[400px] sm:h-[820px] sm:max-h-[92vh] sm:rounded-[44px] sm:shadow-[0_30px_90px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.12)] overflow-hidden flex flex-col justify-between transition-colors duration-500 ${
+        className={`relative z-10 w-full h-full sm:w-[400px] sm:h-[820px] sm:max-h-[92vh] sm:rounded-[44px] ${
+          isClassic
+            ? "sm:shadow-[0_28px_80px_rgba(15,23,42,0.18),0_0_0_1px_rgba(5,150,105,0.2)]"
+            : "sm:shadow-[0_30px_90px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.12)]"
+        } overflow-hidden flex flex-col justify-between transition-colors duration-500 ${
           isExitingSheet
             ? "bg-[#064e3b]"
             : "bg-gradient-to-b from-[#059669] via-[#05875f] to-[#047857]"
@@ -770,46 +790,52 @@ export default function LoginPage() {
                 }`}
               >
                 {themeToast && (
-                  <div className="mr-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#12171d]/90 backdrop-blur-md border border-emerald-300/30 text-[11px] font-bold text-emerald-100 shadow-lg animate-fade-in">
+                  <div
+                    className={`mr-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-bold shadow-lg animate-fade-in ${
+                      isClassic
+                        ? "bg-white/95 border-emerald-200 text-slate-800"
+                        : "bg-[#12171d]/90 border-emerald-300/30 text-emerald-100"
+                    }`}
+                  >
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        isClassic ? "bg-amber-400" : "bg-emerald-400"
+                        isClassic ? "bg-amber-500" : "bg-emerald-400"
                       }`}
                     />
                     <span>{themeToast}</span>
                   </div>
                 )}
 
-                {/* Discreet Button to Restore Classic Version / Toggle Dark Version */}
+                {/* Button to Toggle Light (Classic) / Dark Mode */}
                 <button
                   type="button"
                   onClick={handleToggleUiVersion}
                   title={
                     isClassic
-                      ? "Voltar para a nova versão escura do sistema"
-                      : "Restaurar versão anterior (clássica clara) do sistema"
+                      ? "Alternar para modo escuro Shark"
+                      : "Alternar para modo claro"
                   }
                   aria-label={
                     isClassic
-                      ? "Ativar nova versão escura do sistema"
-                      : "Restaurar versão atual clássica do sistema"
+                      ? "Ativar modo escuro do sistema"
+                      : "Ativar modo claro do sistema"
                   }
-                  className={`relative w-9 h-9 rounded-full backdrop-blur-md border flex items-center justify-center active:scale-90 transition-all cursor-pointer animate-fade-in ${
+                  className={`relative w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center active:scale-90 transition-all cursor-pointer animate-fade-in ${
                     isClassic
-                      ? "bg-white/25 border-amber-300/50 text-amber-200 shadow-sm"
-                      : "bg-[#022c22]/20 border-white/12 text-white/75 hover:text-white hover:bg-[#022c22]/35"
+                      ? "bg-white/95 border-white text-amber-500 shadow-md hover:bg-white"
+                      : "bg-[#022c22]/25 border-white/15 text-white/85 hover:text-white hover:bg-[#022c22]/40"
                   }`}
                   style={{ animationDelay: "180ms" }}
                 >
                   {isClassic ? (
-                    <Sun className="w-4 h-4" />
+                    <Sun className="w-4.5 h-4.5" />
                   ) : (
-                    <History className="w-4 h-4" />
+                    <Moon className="w-4.5 h-4.5" />
                   )}
                   {isClassic && (
                     <span
-                      className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-[#059669]"
-                      title="Modo clássico ativo"
+                      className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-[#059669]"
+                      title="Modo claro ativo"
                     />
                   )}
                 </button>
@@ -888,12 +914,16 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* ── Asymmetric Dark Bottom Sheet (Anchored flush to bottom edge) ── */}
+            {/* ── Asymmetric Bottom Sheet (Light / Dark Mode Adaptive) ── */}
             <div
               style={{
                 paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))",
               }}
-              className={`relative z-20 bg-[#12171d] text-white rounded-tr-[42px] rounded-tl-none px-6 pt-6 shadow-[0_-16px_50px_rgba(0,0,0,0.45)] border-t border-white/[0.06] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`relative z-20 rounded-tr-[42px] rounded-tl-none px-6 pt-6 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                isClassic
+                  ? "bg-white text-slate-900 shadow-[0_-16px_50px_rgba(15,23,42,0.18)] border-t border-emerald-100"
+                  : "bg-[#12171d] text-white shadow-[0_-16px_50px_rgba(0,0,0,0.45)] border-t border-white/[0.06]"
+              } ${
                 isExitingSheet || isExitingFinal
                   ? "translate-y-[105%]"
                   : "translate-y-0 animate-slide-up"
@@ -914,7 +944,11 @@ export default function LoginPage() {
                         transitionDelay: isExitingCheck ? "0ms" : "0ms",
                         animationDelay: "140ms",
                       }}
-                      className={`group relative h-[136px] sm:h-[142px] rounded-[22px] p-4 flex flex-col justify-between text-left bg-gradient-to-br from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#059669] shadow-lg shadow-emerald-950/50 border border-emerald-300/25 cursor-pointer active:scale-[0.97] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      className={`group relative h-[136px] sm:h-[142px] rounded-[22px] p-4 flex flex-col justify-between text-left bg-gradient-to-br from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#059669] cursor-pointer active:scale-[0.97] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        isClassic
+                          ? "shadow-lg shadow-emerald-600/25 border border-emerald-400/35"
+                          : "shadow-lg shadow-emerald-950/50 border border-emerald-300/25"
+                      } ${
                         isExitingCheck || isExitingSheet || isExitingFinal
                           ? "translate-y-36 opacity-0 pointer-events-none"
                           : "translate-y-0 opacity-100 animate-fade-in-up"
@@ -969,7 +1003,11 @@ export default function LoginPage() {
                         transitionDelay: isExitingCheck ? "150ms" : "0ms",
                         animationDelay: "220ms",
                       }}
-                      className={`group relative h-[136px] sm:h-[142px] rounded-[22px] p-4 flex flex-col justify-between text-left bg-gradient-to-br from-[#065f46] to-[#064e3b] hover:from-[#047857] hover:to-[#065f46] shadow-lg shadow-black/40 border border-emerald-400/15 cursor-pointer active:scale-[0.97] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      className={`group relative h-[136px] sm:h-[142px] rounded-[22px] p-4 flex flex-col justify-between text-left bg-gradient-to-br from-[#065f46] to-[#064e3b] hover:from-[#047857] hover:to-[#065f46] cursor-pointer active:scale-[0.97] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        isClassic
+                          ? "shadow-lg shadow-emerald-950/20 border border-emerald-700/25"
+                          : "shadow-lg shadow-black/40 border border-emerald-400/15"
+                      } ${
                         isExitingCheck || isExitingSheet || isExitingFinal
                           ? "translate-y-36 opacity-0 pointer-events-none"
                           : "translate-y-0 opacity-100 animate-fade-in-up"
@@ -1015,11 +1053,19 @@ export default function LoginPage() {
                       }`}
                       style={{ animationDelay: "300ms" }}
                     >
-                      <h2 className="text-[15px] font-bold text-white/95 tracking-tight">
+                      <h2
+                        className={`text-[15px] font-bold tracking-tight ${
+                          isClassic ? "text-slate-900" : "text-white/95"
+                        }`}
+                      >
                         Fale conosco
                       </h2>
                       {email && (
-                        <span className="text-[11px] font-medium text-slate-400 truncate max-w-[180px]">
+                        <span
+                          className={`text-[11px] font-medium truncate max-w-[180px] ${
+                            isClassic ? "text-slate-500" : "text-slate-400"
+                          }`}
+                        >
                           {email}
                         </span>
                       )}
@@ -1035,7 +1081,11 @@ export default function LoginPage() {
                           transitionDelay: isAnyExit ? "0ms" : "0ms",
                           animationDelay: "360ms",
                         }}
-                        className={`group h-[98px] rounded-[20px] bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        className={`group h-[98px] rounded-[20px] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          isClassic
+                            ? "bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-200 shadow-xs"
+                            : "bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05]"
+                        } ${
                           isAnyExit
                             ? "translate-y-28 opacity-0 pointer-events-none"
                             : "translate-y-0 opacity-100 animate-fade-in-up"
@@ -1044,7 +1094,11 @@ export default function LoginPage() {
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
-                          className="w-5 h-5 text-white/90 group-hover:text-emerald-400 transition-colors"
+                          className={`w-5 h-5 transition-colors ${
+                            isClassic
+                              ? "text-emerald-700 group-hover:text-emerald-600"
+                              : "text-white/90 group-hover:text-emerald-400"
+                          }`}
                           stroke="currentColor"
                           strokeWidth="1.9"
                           strokeLinecap="round"
@@ -1052,7 +1106,13 @@ export default function LoginPage() {
                         >
                           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                         </svg>
-                        <span className="text-[13px] font-semibold text-white/90 tracking-tight">
+                        <span
+                          className={`text-[13px] font-semibold tracking-tight ${
+                            isClassic
+                              ? "text-slate-800 group-hover:text-emerald-950"
+                              : "text-white/90"
+                          }`}
+                        >
                           Ligar
                         </span>
                       </a>
@@ -1066,7 +1126,11 @@ export default function LoginPage() {
                           transitionDelay: isAnyExit ? "90ms" : "0ms",
                           animationDelay: "440ms",
                         }}
-                        className={`group h-[98px] rounded-[20px] bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        className={`group h-[98px] rounded-[20px] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          isClassic
+                            ? "bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-200 shadow-xs"
+                            : "bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05]"
+                        } ${
                           isAnyExit
                             ? "translate-y-28 opacity-0 pointer-events-none"
                             : "translate-y-0 opacity-100 animate-fade-in-up"
@@ -1075,7 +1139,11 @@ export default function LoginPage() {
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
-                          className="w-5 h-5 text-white/90 group-hover:text-emerald-400 transition-colors"
+                          className={`w-5 h-5 transition-colors ${
+                            isClassic
+                              ? "text-emerald-700 group-hover:text-emerald-600"
+                              : "text-white/90 group-hover:text-emerald-400"
+                          }`}
                           stroke="currentColor"
                           strokeWidth="1.9"
                           strokeLinecap="round"
@@ -1085,7 +1153,13 @@ export default function LoginPage() {
                           <line x1="9" y1="3" x2="9" y2="18" />
                           <line x1="15" y1="6" x2="15" y2="21" />
                         </svg>
-                        <span className="text-[13px] font-semibold text-white/90 tracking-tight">
+                        <span
+                          className={`text-[13px] font-semibold tracking-tight ${
+                            isClassic
+                              ? "text-slate-800 group-hover:text-emerald-950"
+                              : "text-white/90"
+                          }`}
+                        >
                           Local
                         </span>
                       </a>
@@ -1098,7 +1172,11 @@ export default function LoginPage() {
                           transitionDelay: isAnyExit ? "180ms" : "0ms",
                           animationDelay: "520ms",
                         }}
-                        className={`group h-[98px] rounded-[20px] bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        className={`group h-[98px] rounded-[20px] p-3.5 flex flex-col justify-between text-left cursor-pointer active:scale-95 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          isClassic
+                            ? "bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-200 shadow-xs"
+                            : "bg-[#1c222b] hover:bg-[#232b36] border border-white/[0.05]"
+                        } ${
                           isAnyExit
                             ? "translate-y-28 opacity-0 pointer-events-none"
                             : "translate-y-0 opacity-100 animate-fade-in-up"
@@ -1107,7 +1185,11 @@ export default function LoginPage() {
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
-                          className="w-5 h-5 text-white/90 group-hover:text-emerald-400 transition-colors"
+                          className={`w-5 h-5 transition-colors ${
+                            isClassic
+                              ? "text-emerald-700 group-hover:text-emerald-600"
+                              : "text-white/90 group-hover:text-emerald-400"
+                          }`}
                           stroke="currentColor"
                           strokeWidth="2.1"
                           strokeLinecap="round"
@@ -1116,7 +1198,13 @@ export default function LoginPage() {
                           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                           <line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
-                        <span className="text-[13px] font-semibold text-white/90 tracking-tight">
+                        <span
+                          className={`text-[13px] font-semibold tracking-tight ${
+                            isClassic
+                              ? "text-slate-800 group-hover:text-emerald-950"
+                              : "text-white/90"
+                          }`}
+                        >
                           Ajuda
                         </span>
                       </button>
@@ -1138,30 +1226,56 @@ export default function LoginPage() {
                         setError("");
                         setInfoBanner("");
                       }}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 py-1 pr-2 cursor-pointer transition-colors"
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold py-1 pr-2 cursor-pointer transition-colors ${
+                        isClassic
+                          ? "text-emerald-700 hover:text-emerald-600"
+                          : "text-emerald-400 hover:text-emerald-300"
+                      }`}
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Voltar</span>
                     </button>
 
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300/90 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 rounded-full">
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                        isClassic
+                          ? "text-emerald-800 bg-emerald-50 border-emerald-200"
+                          : "text-emerald-300/90 bg-emerald-500/15 border-emerald-500/25"
+                      }`}
+                    >
                       {authMethod === "faceid" ? "Vincular Face ID" : "Acesso com Senha"}
                     </span>
                   </div>
 
                   {infoBanner && !error && (
-                    <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-200 text-xs font-medium leading-relaxed">
+                    <div
+                      className={`p-2.5 rounded-2xl border text-xs font-medium leading-relaxed ${
+                        isClassic
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                          : "bg-emerald-500/10 border-emerald-500/25 text-emerald-200"
+                      }`}
+                    >
                       {infoBanner}
                     </div>
                   )}
 
                   {error && (
-                    <div className="p-2.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold flex items-center justify-between">
+                    <div
+                      className={`p-2.5 rounded-2xl border text-xs font-semibold flex items-center justify-between ${
+                        isClassic
+                          ? "bg-red-50 border-red-200 text-red-700"
+                          : "bg-red-500/15 border-red-500/30 text-red-300"
+                      }`}
+                    >
                       <span>{error}</span>
                       <button
                         type="button"
                         onClick={() => setError("")}
-                        className="text-red-300/70 hover:text-red-200 ml-2"
+                        className={`ml-2 ${
+                          isClassic
+                            ? "text-red-500 hover:text-red-700"
+                            : "text-red-300/70 hover:text-red-200"
+                        }`}
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -1169,11 +1283,19 @@ export default function LoginPage() {
                   )}
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300 ml-1 block">
+                    <label
+                      className={`text-xs font-bold ml-1 block ${
+                        isClassic ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       E-mail
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/80" />
+                      <Mail
+                        className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${
+                          isClassic ? "text-emerald-600" : "text-emerald-400/80"
+                        }`}
+                      />
                       <input
                         ref={emailInputRef}
                         type="email"
@@ -1181,17 +1303,29 @@ export default function LoginPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Seu e-mail de acesso"
                         required
-                        className="w-full pl-10 pr-4 py-2.5 bg-[#1c222b] border border-white/10 focus:border-emerald-500 rounded-2xl text-base text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all font-medium select-text"
+                        className={`w-full pl-10 pr-4 py-2.5 border focus:border-emerald-500 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all font-medium select-text ${
+                          isClassic
+                            ? "bg-slate-50 border-slate-200 focus:bg-white text-slate-900 placeholder:text-slate-400"
+                            : "bg-[#1c222b] border-white/10 text-white placeholder:text-slate-500"
+                        }`}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300 ml-1 block">
+                    <label
+                      className={`text-xs font-bold ml-1 block ${
+                        isClassic ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       Senha
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/80" />
+                      <Lock
+                        className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${
+                          isClassic ? "text-emerald-600" : "text-emerald-400/80"
+                        }`}
+                      />
                       <input
                         ref={passwordInputRef}
                         type={showPassword ? "text" : "password"}
@@ -1199,12 +1333,20 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         required
-                        className="w-full pl-10 pr-11 py-2.5 bg-[#1c222b] border border-white/10 focus:border-emerald-500 rounded-2xl text-base text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all font-medium select-text"
+                        className={`w-full pl-10 pr-11 py-2.5 border focus:border-emerald-500 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all font-medium select-text ${
+                          isClassic
+                            ? "bg-slate-50 border-slate-200 focus:bg-white text-slate-900 placeholder:text-slate-400"
+                            : "bg-[#1c222b] border-white/10 text-white placeholder:text-slate-500"
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+                        className={`absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer ${
+                          isClassic
+                            ? "text-slate-400 hover:text-slate-700"
+                            : "text-slate-400 hover:text-white"
+                        }`}
                         tabIndex={-1}
                       >
                         {showPassword ? (
@@ -1222,9 +1364,13 @@ export default function LoginPage() {
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+                        className="w-4 h-4 rounded accent-emerald-600 cursor-pointer"
                       />
-                      <span className="text-xs font-semibold text-slate-300">
+                      <span
+                        className={`text-xs font-semibold ${
+                          isClassic ? "text-slate-600" : "text-slate-300"
+                        }`}
+                      >
                         Lembrar-me (manter conectado por 30 dias)
                       </span>
                     </label>
@@ -1234,9 +1380,13 @@ export default function LoginPage() {
                         type="checkbox"
                         checked={enrollBiometrics}
                         onChange={(e) => setEnrollBiometrics(e.target.checked)}
-                        className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+                        className="w-4 h-4 rounded accent-emerald-600 cursor-pointer"
                       />
-                      <span className="text-xs font-semibold text-emerald-300/90">
+                      <span
+                        className={`text-xs font-semibold ${
+                          isClassic ? "text-emerald-700" : "text-emerald-300/90"
+                        }`}
+                      >
                         Habilitar login rápido no cartão Face ID
                       </span>
                     </label>
@@ -1245,7 +1395,11 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white font-bold text-sm shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-all disabled:opacity-60"
+                    className={`w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-all disabled:opacity-60 ${
+                      isClassic
+                        ? "shadow-lg shadow-emerald-600/25"
+                        : "shadow-lg shadow-emerald-950/60"
+                    }`}
                   >
                     {isLoading ? (
                       <>
@@ -1275,27 +1429,55 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setSheetView("cards")}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 py-1 pr-2 cursor-pointer"
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold py-1 pr-2 cursor-pointer ${
+                        isClassic
+                          ? "text-emerald-700 hover:text-emerald-600"
+                          : "text-emerald-400 hover:text-emerald-300"
+                      }`}
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Voltar</span>
                     </button>
-                    <span className="text-xs font-bold text-slate-300">
+                    <span
+                      className={`text-xs font-bold ${
+                        isClassic ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       Configurações de Acesso
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#1c222b] border border-white/10 space-y-2">
+                  <div
+                    className={`p-3.5 rounded-2xl border space-y-2 ${
+                      isClassic
+                        ? "bg-slate-50 border-slate-200"
+                        : "bg-[#1c222b] border-white/10"
+                    }`}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <div
+                          className={`w-9 h-9 rounded-xl border flex items-center justify-center ${
+                            isClassic
+                              ? "bg-emerald-100/80 border-emerald-200 text-emerald-700"
+                              : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                          }`}
+                        >
                           <ShieldCheck className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-white">
+                          <p
+                            className={`text-xs font-bold ${
+                              isClassic ? "text-slate-900" : "text-white"
+                            }`}
+                          >
                             Status do Face ID / Biometria
                           </p>
-                          <p className="text-[11px] text-slate-400">
+                          <p
+                            className={`text-[11px] ${
+                              isClassic ? "text-slate-500" : "text-slate-400"
+                            }`}
+                          >
                             {hasBiometricToken
                               ? `Vinculado a ${email || displayName}`
                               : "Ainda não vinculado neste dispositivo"}
@@ -1305,8 +1487,12 @@ export default function LoginPage() {
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           hasBiometricToken
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-slate-700 text-slate-300"
+                            ? isClassic
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              : "bg-emerald-500/20 text-emerald-300"
+                            : isClassic
+                              ? "bg-slate-200 text-slate-600"
+                              : "bg-slate-700 text-slate-300"
                         }`}
                       >
                         {hasBiometricToken ? "Ativo" : "Inativo"}
@@ -1314,7 +1500,11 @@ export default function LoginPage() {
                     </div>
 
                     {hasWebAuthnHardware && (
-                      <p className="text-[11px] text-emerald-300/80 flex items-center gap-1.5 pt-1">
+                      <p
+                        className={`text-[11px] flex items-center gap-1.5 pt-1 ${
+                          isClassic ? "text-emerald-700" : "text-emerald-300/80"
+                        }`}
+                      >
                         <Fingerprint className="w-3.5 h-3.5 shrink-0" />
                         <span>Sensor biométrico do dispositivo detectado (WebAuthn).</span>
                       </p>
@@ -1325,38 +1515,50 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={handleToggleUiVersion}
-                      className="w-full py-3 px-4 rounded-2xl bg-[#1c222b] hover:bg-[#242c37] border border-white/10 text-xs font-bold text-white flex items-center justify-between cursor-pointer transition-colors"
+                      className={`w-full py-3 px-4 rounded-2xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        isClassic
+                          ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                          : "bg-[#1c222b] hover:bg-[#242c37] border-white/10 text-white"
+                      }`}
                     >
                       <span className="flex items-center gap-2">
                         {isClassic ? (
-                          <Moon className="w-4 h-4 text-emerald-400" />
+                          <Moon className="w-4 h-4 text-emerald-600" />
                         ) : (
-                          <History className="w-4 h-4 text-amber-400" />
+                          <Sun className="w-4 h-4 text-amber-400" />
                         )}
                         <span>
                           {isClassic
-                            ? "Usar nova versão escura Shark"
-                            : "Restaurar versão clássica (clara)"}
+                            ? "Mudar para modo escuro Shark"
+                            : "Mudar para modo claro"}
                         </span>
                       </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           isClassic
-                            ? "bg-amber-500/20 text-amber-300"
+                            ? "bg-amber-100 text-amber-800 border border-amber-200"
                             : "bg-emerald-500/20 text-emerald-300"
                         }`}
                       >
-                        {isClassic ? "Clássica" : "Escura (Nova)"}
+                        {isClassic ? "Modo Claro" : "Modo Escuro"}
                       </span>
                     </button>
 
                     <button
                       type="button"
                       onClick={startIntroSequence}
-                      className="w-full py-3 px-4 rounded-2xl bg-[#1c222b] hover:bg-[#242c37] border border-white/10 text-xs font-bold text-white flex items-center justify-between cursor-pointer transition-colors"
+                      className={`w-full py-3 px-4 rounded-2xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        isClassic
+                          ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                          : "bg-[#1c222b] hover:bg-[#242c37] border-white/10 text-white"
+                      }`}
                     >
                       <span className="flex items-center gap-2">
-                        <RotateCcw className="w-4 h-4 text-emerald-400" />
+                        <RotateCcw
+                          className={`w-4 h-4 ${
+                            isClassic ? "text-emerald-600" : "text-emerald-400"
+                          }`}
+                        />
                         <span>Repetir animação de abertura</span>
                       </span>
                     </button>
@@ -1365,7 +1567,11 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={handleUnlinkDevice}
-                        className="w-full py-3 px-4 rounded-2xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 text-xs font-bold text-red-300 flex items-center justify-between cursor-pointer transition-colors"
+                        className={`w-full py-3 px-4 rounded-2xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                          isClassic
+                            ? "bg-red-50 hover:bg-red-100 border-red-200 text-red-600"
+                            : "bg-red-500/10 hover:bg-red-500/20 border-red-500/25 text-red-300"
+                        }`}
                       >
                         <span className="flex items-center gap-2">
                           <LogOut className="w-4 h-4" />
@@ -1379,17 +1585,37 @@ export default function LoginPage() {
 
               {/* Help Mini-Sheet Overlay when clicking Ajuda */}
               {helpModalOpen && (
-                <div className="absolute inset-0 z-30 bg-[#12171d]/95 backdrop-blur-md rounded-tr-[42px] p-6 flex flex-col justify-between animate-fade-in">
+                <div
+                  className={`absolute inset-0 z-30 backdrop-blur-md rounded-tr-[42px] p-6 flex flex-col justify-between animate-fade-in ${
+                    isClassic
+                      ? "bg-white/95 text-slate-900"
+                      : "bg-[#12171d]/95 text-white"
+                  }`}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <div
+                        className={`w-9 h-9 rounded-xl border flex items-center justify-center ${
+                          isClassic
+                            ? "bg-emerald-100/80 border-emerald-200 text-emerald-700"
+                            : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                        }`}
+                      >
                         <HelpCircle className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-white">
+                        <h3
+                          className={`text-sm font-bold ${
+                            isClassic ? "text-slate-900" : "text-white"
+                          }`}
+                        >
                           Como funciona o Acesso
                         </h3>
-                        <p className="text-[11px] text-slate-400">
+                        <p
+                          className={`text-[11px] ${
+                            isClassic ? "text-slate-500" : "text-slate-400"
+                          }`}
+                        >
                           Shark Soluções Financeiras
                         </p>
                       </div>
@@ -1397,22 +1623,47 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setHelpModalOpen(false)}
-                      className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 cursor-pointer"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${
+                        isClassic
+                          ? "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                          : "bg-white/5 hover:bg-white/10 text-slate-300"
+                      }`}
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="my-auto py-3 space-y-2 text-xs text-slate-300 leading-relaxed">
-                    <p className="font-semibold text-white">
+                  <div
+                    className={`my-auto py-3 space-y-2 text-xs leading-relaxed ${
+                      isClassic ? "text-slate-600" : "text-slate-300"
+                    }`}
+                  >
+                    <p
+                      className={`font-semibold ${
+                        isClassic ? "text-slate-900" : "text-white"
+                      }`}
+                    >
                       Usando o Face ID ou Senha:
                     </p>
                     <p>
                       No primeiro acesso, entre com seu e-mail e senha para vincular seu
                       aparelho. Nos próximos acessos, basta tocar no cartão{" "}
-                      <strong className="text-emerald-400">Face ID</strong> para entrar
-                      instantaneamente, ou falar conosco pelo botão{" "}
-                      <strong className="text-emerald-400">Ligar</strong>.
+                      <strong
+                        className={
+                          isClassic ? "text-emerald-700" : "text-emerald-400"
+                        }
+                      >
+                        Face ID
+                      </strong>{" "}
+                      para entrar instantaneamente, ou falar conosco pelo botão{" "}
+                      <strong
+                        className={
+                          isClassic ? "text-emerald-700" : "text-emerald-400"
+                        }
+                      >
+                        Ligar
+                      </strong>
+                      .
                     </p>
                   </div>
 
@@ -1422,7 +1673,7 @@ export default function LoginPage() {
                       setHelpModalOpen(false);
                       setSheetView("credentials");
                     }}
-                    className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                    className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
                   >
                     Preencher Credenciais
                   </button>

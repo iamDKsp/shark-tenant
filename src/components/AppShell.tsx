@@ -21,7 +21,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLogin) {
     return (
-      <main className="fixed inset-0 w-full h-[100dvh] overflow-hidden overscroll-none bg-[#12171d]">
+      <main
+        className={`fixed inset-0 w-full h-[100dvh] overflow-hidden overscroll-none transition-colors duration-300 ${
+          isDark ? "bg-[#12171d]" : "bg-slate-100"
+        }`}
+      >
         {children}
       </main>
     );
