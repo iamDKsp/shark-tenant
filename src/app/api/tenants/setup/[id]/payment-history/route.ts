@@ -11,12 +11,28 @@ export async function GET(
 
   try {
     const { id } = await context.params;
-    const logs = await heartPrisma.paymentLog.findMany({
-      where: { tenantId: id },
-      orderBy: { createdAt: "desc" },
-    });
+    const [rawLogs, invoices] = await Promise.all([
+      heartPrisma.paymentLog.findMany({
+        where: { tenantId: id },
+        orderBy: { createdAt: "desc" },
+      }),
+      heartPrisma.tenantInvoice.findMany({
+        where: { tenantId: id },
+        orderBy: { dueDate: "desc" },
+      }),
+    ]);
 
-    return NextResponse.json(logs);
+    const logs = rawLogs.map((log) => ({
+      ...log,
+      dataPagamento: log.createdAt,
+      vencimentoAnterior: log.vencimentoAntes,
+      vencimentoNovo: log.vencimentoApos,
+    }));
+
+    return NextResponse.json({
+      logs,
+      invoices,
+    });
   } catch (error: any) {
     console.error("GET /api/tenants/setup/[id]/payment-history error:", error);
     return NextResponse.json(

@@ -13,6 +13,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/api/auth/login") ||
     pathname.startsWith("/api/auth/logout") ||
+    pathname.startsWith("/api/public") ||
     pathname.startsWith("/sys-init") ||
     pathname.startsWith("/api/tenants/setup") ||
     pathname.startsWith("/login") ||

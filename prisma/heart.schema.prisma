@@ -36,20 +36,39 @@ model Tenant {
   cep          String?
   telefone     String?
 
-  // Mensalidades
+  // Mensalidades e Contrato (Base)
   mensalidadeValor      Decimal?  @default(0.00) @map("mensalidade_valor") @db.Decimal(10, 2)
   mensalidadeVencimento DateTime? @map("mensalidade_vencimento")
+  billingDay            Int?      @map("billing_day")
+  contractStartDate     String?   @map("contract_start_date")
+  contractEndDate       String?   @map("contract_end_date")
+  effectiveDate         String?   @map("effective_date")
 
   // Informações de contato do cliente
   telefoneContato String? @map("telefone_contato")
   emailContato    String? @map("email_contato")
   observacoes     String? @db.Text
 
+  // Integração Teltech Leadger (Contrato v1)
+  clientExternalId    String?   @unique @map("client_external_id")
+  baseExternalId      String?   @unique @map("base_external_id")
+  clientVersion       Int       @default(1) @map("client_version")
+  baseVersion         Int       @default(1) @map("base_version")
+  photoVersion        Int       @default(0) @map("photo_version")
+  leadgerSyncEnabled  Boolean   @default(false) @map("leadger_sync_enabled")
+  leadgerSynced       Boolean   @default(false) @map("leadger_synced")
+  leadgerClientId     String?   @map("leadger_client_id")
+  leadgerSaleItemId   String?   @map("leadger_sale_item_id")
+  leadgerPhotoUrl     String?   @map("leadger_photo_url")
+  leadgerLastSyncedAt DateTime? @map("leadger_last_synced_at")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
-  paymentLogs PaymentLog[]
+  users         User[]
+  paymentLogs   PaymentLog[]
+  invoices      TenantInvoice[]
+  webhookOutbox WebhookOutbox[]
 
   @@map("tenants")
 }
@@ -77,10 +96,15 @@ model PaymentLog {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  valor           Decimal  @db.Decimal(10, 2)
+  invoiceId       String?   @map("invoice_id")
+  valor           Decimal   @db.Decimal(10, 2)
   vencimentoAntes DateTime
   vencimentoApos  DateTime
-  observacao      String?  @db.Text
+  paymentMethod   String?   @map("payment_method") // pix, boleto, credit_card, bank_transfer, cash
+  tipo            String    @default("payment") // payment, refund, correction
+  estornado       Boolean   @default(false)
+  estornadoEm     DateTime? @map("estornado_em")
+  observacao      String?   @db.Text
   registradoPor   String?
 
   createdAt DateTime @default(now())
@@ -88,4 +112,67 @@ model PaymentLog {
   @@index([tenantId])
   @@index([createdAt])
   @@map("payment_logs")
+}
+
+model TenantInvoice {
+  id       String @id @default(uuid())
+  tenantId String @map("tenant_id")
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  externalId           String    @unique @map("external_id")
+  version              Int       @default(1)
+  description          String
+  amount               Int // Valor em centavos BRL (ex: R$ 149,90 = 14990)
+  dueDate              String    @map("due_date") // YYYY-MM-DD
+  referenceMonth       String    @map("reference_month") // YYYY-MM
+  status               String    @default("pending") // pending, paid, cancelled
+  paidAt               DateTime? @map("paid_at")
+  paymentMethod        String?   @map("payment_method") // pix, boleto, credit_card, bank_transfer, cash
+  notes                String?   @db.Text
+  leadgerInvoiceId     String?   @map("leadger_invoice_id")
+  leadgerSyncedVersion Int       @default(0) @map("leadger_synced_version")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, referenceMonth])
+  @@index([tenantId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tenant_invoices")
+}
+
+model WebhookOutbox {
+  id       String  @id @default(uuid())
+  tenantId String? @map("tenant_id")
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  invoiceId        String?   @map("invoice_id")
+  eventId          String    @unique @map("event_id")
+  eventType        String    @map("event_type") // base.upsert, invoice.upsert, client.upsert
+  occurredAt       String    @map("occurred_at") // ISO 8601 original
+  payloadJson      String    @map("payload_json") @db.Text // Bytes UTF-8 exatos do corpo JSON
+  clientVersion    Int?      @map("client_version")
+  baseVersion      Int?      @map("base_version")
+  invoiceVersion   Int?      @map("invoice_version")
+  photoVersion     Int?      @map("photo_version")
+  status           String    @default("pending") // pending, processing, delivered, retry_scheduled, blocked, failed
+  attempts         Int       @default(0)
+  nextAttemptAt    DateTime  @default(now()) @map("next_attempt_at")
+  lastAttemptAt    DateTime? @map("last_attempt_at")
+  deliveredAt      DateTime? @map("delivered_at")
+  lastHttpStatus   Int?      @map("last_http_status")
+  lastErrorCode    String?   @map("last_error_code")
+  lastErrorMessage String?   @map("last_error_message") @db.Text
+  lastResponseJson String?   @map("last_response_json") @db.Text
+  outcome          String? // applied, unchanged, stale
+  duplicate        Boolean?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status, nextAttemptAt])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("webhook_outbox")
 }

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { TenantBillingCalendar } from "@/components/TenantBillingCalendar";
+import { LeadgerIntegrationPanel } from "@/components/LeadgerIntegrationPanel";
+import { TenantInvoicesManager } from "@/components/TenantInvoicesManager";
 import {
   SysTooltip,
   SysCheckbox,
@@ -139,7 +141,7 @@ export default function SysInitPage() {
   const [tenants, setTenants] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<
-    "list" | "calendar" | "new" | "edit" | "sql" | "backups"
+    "list" | "calendar" | "new" | "edit" | "sql" | "backups" | "leadger"
   >("list");
 
   const [tenantSearch, setTenantSearch] = useState("");
@@ -178,6 +180,7 @@ export default function SysInitPage() {
   const [tenantUsers, setTenantUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [tenantInvoices, setTenantInvoices] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [tenantStats, setTenantStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
@@ -197,6 +200,11 @@ export default function SysInitPage() {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminPasswordConfirm, setAdminPasswordConfirm] = useState("");
+  const [newCnpj, setNewCnpj] = useState("");
+  const [newTelefone, setNewTelefone] = useState("");
+  const [newMensalidadeValor, setNewMensalidadeValor] = useState("");
+  const [newMensalidadeVencimento, setNewMensalidadeVencimento] = useState("");
+  const [newSyncLeadger, setNewSyncLeadger] = useState(false);
   const [seedDefaults, setSeedDefaults] = useState(true);
 
   const [provisioning, setProvisioning] = useState(false);
@@ -396,6 +404,12 @@ export default function SysInitPage() {
           adminName,
           adminEmail,
           adminPassword,
+          cnpj: newCnpj || undefined,
+          telefone: newTelefone || undefined,
+          mensalidadeValor:
+            newMensalidadeValor !== "" ? Number(newMensalidadeValor) : undefined,
+          mensalidadeVencimento: newMensalidadeVencimento || undefined,
+          syncWithLeadger: newSyncLeadger,
           seedDefaults,
         }),
       });
@@ -416,6 +430,11 @@ export default function SysInitPage() {
       setAdminEmail("");
       setAdminPassword("");
       setAdminPasswordConfirm("");
+      setNewCnpj("");
+      setNewTelefone("");
+      setNewMensalidadeValor("");
+      setNewMensalidadeVencimento("");
+      setNewSyncLeadger(false);
       fetchTenants();
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -432,7 +451,7 @@ export default function SysInitPage() {
 
     try {
       const res = await fetch(`/api/tenants/setup/${editingTenant.id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "x-setup-pin": pin,
@@ -444,12 +463,18 @@ export default function SysInitPage() {
           razaoSocial: editingTenant.razaoSocial,
           cnpj: editingTenant.cnpj,
           telefone: editingTenant.telefone,
+          emailContato: editingTenant.emailContato,
           endereco: editingTenant.endereco,
           cidade: editingTenant.cidade,
           logo: editingTenant.logo,
           observacoes: editingTenant.observacoes,
           mensalidadeValor: editingTenant.mensalidadeValor,
           mensalidadeVencimento: editingTenant.mensalidadeVencimento,
+          billingDay: editingTenant.billingDay,
+          effectiveDate: editingTenant.effectiveDate,
+          clientExternalId: editingTenant.clientExternalId,
+          baseExternalId: editingTenant.baseExternalId,
+          leadgerSyncEnabled: editingTenant.leadgerSyncEnabled,
           modules:
             typeof editingTenant.modules === "object"
               ? JSON.stringify(editingTenant.modules)
@@ -500,6 +525,7 @@ export default function SysInitPage() {
       if (res.ok) {
         const data = await res.json();
         setPaymentHistory(Array.isArray(data) ? data : data.logs || []);
+        setTenantInvoices(Array.isArray(data?.invoices) ? data.invoices : []);
       }
     } catch (err) {
       console.error(err);
@@ -531,7 +557,13 @@ export default function SysInitPage() {
   ) => {
     setEditingTenant({
       ...tenant,
-      modules: parseModules(tenant.modules),
+      logo: tenant.logo ?? tenant.logoUrl ?? "",
+      endereco: tenant.endereco ?? tenant.logradouro ?? "",
+      cidade:
+        tenant.cidade ??
+        [tenant.municipio, tenant.uf].filter(Boolean).join(" - "),
+      emailContato: tenant.emailContato || tenant.users?.[0]?.email || "",
+      modules: parseModules(tenant.modules ?? tenant.modulos),
       mensalidadeVencimento: tenant.mensalidadeVencimento
         ? new Date(tenant.mensalidadeVencimento).toISOString().split("T")[0]
         : "",
@@ -1386,6 +1418,17 @@ export default function SysInitPage() {
               >
                 <Archive size={14} />
                 <span>Backups</span>
+              </button>
+              <button
+                onClick={() => setView("leadger")}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  view === "leadger"
+                    ? "bg-emerald-500 text-zinc-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                    : "text-emerald-300 hover:bg-emerald-500/15"
+                }`}
+              >
+                <Zap size={14} />
+                <span>Leadger Webhook</span>
               </button>
             </div>
 
@@ -2284,6 +2327,79 @@ export default function SysInitPage() {
                     </div>
                   </div>
 
+                  <div className="space-y-4 pt-4 border-t border-zinc-800/80">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center space-x-2">
+                      <DollarSign size={14} />
+                      <span>
+                        3. Dados Comerciais & Mensalidade (Opcional · Leadger)
+                      </span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">
+                          CNPJ / CPF
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="00.000.000/0001-00"
+                          value={newCnpj}
+                          onChange={(e) => setNewCnpj(e.target.value)}
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-emerald-500 transition"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">
+                          Telefone / WhatsApp
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="+5511999999999"
+                          value={newTelefone}
+                          onChange={(e) => setNewTelefone(e.target.value)}
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">
+                          Valor Mensalidade (R$)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="Ex: 149.90"
+                          value={newMensalidadeValor}
+                          onChange={(e) =>
+                            setNewMensalidadeValor(e.target.value)
+                          }
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-emerald-500 transition"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">
+                          1º Vencimento
+                        </label>
+                        <SysDateTimePicker
+                          value={newMensalidadeVencimento}
+                          onChange={setNewMensalidadeVencimento}
+                          placeholder="Data do 1º vencimento"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl bg-zinc-950/70 border border-emerald-500/25 p-3.5">
+                      <SysCheckbox
+                        checked={newSyncLeadger}
+                        onChange={setNewSyncLeadger}
+                        label="Sincronizar automaticamente com o Teltech Leadger (base.upsert)"
+                        description="Ao provisionar, grava a fatura inicial e emite base.upsert na fila Outbox (requer mensalidade > R$ 0,00)."
+                      />
+                    </div>
+                  </div>
+
                   <div className="pt-4">
                     <button
                       type="submit"
@@ -2460,7 +2576,12 @@ export default function SysInitPage() {
                           },
                           {
                             value: "suspended",
-                            label: "Suspensa (Bloqueada)",
+                            label: "Suspensa (Pausada)",
+                            badge: "PAUSE",
+                          },
+                          {
+                            value: "inactive",
+                            label: "Inativa (Cancelada)",
                             badge: "OFF",
                           },
                         ]}
@@ -2520,7 +2641,7 @@ export default function SysInitPage() {
                     </div>
                     <div>
                       <label className="block text-xs text-zinc-400 mb-1">
-                        CNPJ / CPF
+                        CNPJ / CPF (Identificador Conciliação Leadger)
                       </label>
                       <input
                         type="text"
@@ -2537,11 +2658,28 @@ export default function SysInitPage() {
                     </div>
                     <div>
                       <label className="block text-xs text-zinc-400 mb-1">
+                        E-mail Financeiro / Contato (Conciliação Leadger)
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="financeiro@empresa.com.br"
+                        value={editingTenant.emailContato || ""}
+                        onChange={(e) =>
+                          setEditingTenant({
+                            ...editingTenant,
+                            emailContato: e.target.value,
+                          })
+                        }
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">
                         Telefone / WhatsApp
                       </label>
                       <input
                         type="text"
-                        placeholder="(11) 99999-9999"
+                        placeholder="+5511999999999"
                         value={editingTenant.telefone || ""}
                         onChange={(e) =>
                           setEditingTenant({
@@ -2569,23 +2707,81 @@ export default function SysInitPage() {
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">
+                        Endereço Completo
+                      </label>
+                      <input
+                        type="text"
+                        value={editingTenant.endereco || ""}
+                        onChange={(e) =>
+                          setEditingTenant({
+                            ...editingTenant,
+                            endereco: e.target.value,
+                          })
+                        }
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs text-zinc-400 mb-1">
-                      Endereço Completo
-                    </label>
-                    <input
-                      type="text"
-                      value={editingTenant.endereco || ""}
-                      onChange={(e) =>
-                        setEditingTenant({
-                          ...editingTenant,
-                          endereco: e.target.value,
-                        })
-                      }
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                    />
+                  {/* Identificadores Externos e Sincronização Automática Leadger */}
+                  <div className="rounded-2xl bg-zinc-950/70 border border-emerald-500/20 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <SysCheckbox
+                        checked={Boolean(editingTenant.leadgerSyncEnabled)}
+                        onChange={(val) =>
+                          setEditingTenant({
+                            ...editingTenant,
+                            leadgerSyncEnabled: val,
+                          })
+                        }
+                        label="Sincronização Automática com Teltech Leadger Ativa"
+                        description="Emite eventos (base.upsert, client.upsert, invoice.upsert) automaticamente na fila Outbox a cada alteração salva."
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <label className="block text-[11px] text-zinc-500 mb-1 font-mono">
+                          client.externalId (Permanente · v
+                          {editingTenant.clientVersion || 1})
+                        </label>
+                        <input
+                          type="text"
+                          value={
+                            editingTenant.clientExternalId ||
+                            `cli-${editingTenant.id}`
+                          }
+                          onChange={(e) =>
+                            setEditingTenant({
+                              ...editingTenant,
+                              clientExternalId: e.target.value,
+                            })
+                          }
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-emerald-300 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-zinc-500 mb-1 font-mono">
+                          base.externalId (Permanente · v
+                          {editingTenant.baseVersion || 1})
+                        </label>
+                        <input
+                          type="text"
+                          value={
+                            editingTenant.baseExternalId ||
+                            `base-${editingTenant.id}`
+                          }
+                          onChange={(e) =>
+                            setEditingTenant({
+                              ...editingTenant,
+                              baseExternalId: e.target.value,
+                            })
+                          }
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-teal-300 font-mono"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
@@ -2817,161 +3013,28 @@ export default function SysInitPage() {
                     </div>
                   </div>
 
-                  <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="font-bold text-emerald-300 text-sm flex items-center space-x-2">
-                        <Calendar size={16} />
-                        <span>Confirmar Recebimento de Mensalidade</span>
-                      </h4>
-                      <p className="text-xs text-zinc-400 mt-1">
-                        Último pagamento:{" "}
-                        <strong className="text-zinc-200">
-                          {editingTenant.ultimoPagamento
-                            ? new Date(
-                                editingTenant.ultimoPagamento
-                              ).toLocaleString("pt-BR")
-                            : "Nenhum registrado"}
-                        </strong>
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleRegistrarPagamento(editingTenant.id)
-                      }
-                      className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-5 py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shrink-0 active:scale-95"
-                    >
-                      <Check size={15} />
-                      <span>Registrar Pagamento (+1 Mês)</span>
-                    </button>
-                  </div>
-
-                  {/* Histórico de Pagamentos (Mobile Cards + Desktop Table) */}
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
-                      <FileText size={14} className="text-emerald-400" />
-                      <span>
-                        Histórico de Pagamentos ({paymentHistory.length})
-                      </span>
-                    </h4>
-
-                    {loadingHistory ? (
-                      <div className="py-6 text-center text-zinc-500">
-                        <Loader2
-                          className="animate-spin mx-auto mb-1 text-emerald-500"
-                          size={20}
-                        />
-                        <span className="text-xs">Carregando histórico...</span>
-                      </div>
-                    ) : paymentHistory.length === 0 ? (
-                      <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-2xl p-6 text-center text-xs text-zinc-500">
-                        Nenhum pagamento registrado ainda para este cliente.
-                      </div>
-                    ) : (
-                      <>
-                        {/* Mobile Cards (< sm) */}
-                        <div className="sm:hidden space-y-2 max-h-60 overflow-y-auto sys-scrollbar">
-                          {paymentHistory.map((log: any) => (
-                            <div
-                              key={log.id}
-                              className="rounded-xl bg-zinc-950/70 border border-zinc-800/80 p-3 space-y-1 text-xs"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-zinc-300 font-semibold">
-                                  {new Date(log.dataPagamento).toLocaleString(
-                                    "pt-BR"
-                                  )}
-                                </span>
-                                <span className="font-mono font-bold text-emerald-400">
-                                  R$ {Number(log.valor || 0).toFixed(2)}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-zinc-400">
-                                Próx. Vencimento:{" "}
-                                {log.vencimentoNovo
-                                  ? new Date(
-                                      log.vencimentoNovo
-                                    ).toLocaleDateString("pt-BR", {
-                                      timeZone: "UTC",
-                                    })
-                                  : "—"}
-                              </p>
-                              {log.observacao && (
-                                <p className="text-[11px] text-zinc-500">
-                                  {log.observacao}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Desktop Table (sm+) */}
-                        <div className="hidden sm:block bg-zinc-950/60 border border-zinc-800/80 rounded-2xl overflow-hidden max-h-60 overflow-y-auto sys-scrollbar">
-                          <table className="w-full text-left text-xs">
-                            <thead className="bg-zinc-900/90 text-zinc-400 uppercase text-[10px]">
-                              <tr>
-                                <th className="py-2.5 px-4">Data / Hora</th>
-                                <th className="py-2.5 px-4">Valor</th>
-                                <th className="py-2.5 px-4">
-                                  Vencimento Anterior
-                                </th>
-                                <th className="py-2.5 px-4">Novo Vencimento</th>
-                                <th className="py-2.5 px-4">Observação</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-800/60">
-                              {paymentHistory.map((log: any) => (
-                                <tr
-                                  key={log.id}
-                                  className="hover:bg-zinc-900/40"
-                                >
-                                  <td className="py-2.5 px-4 text-zinc-300">
-                                    {new Date(log.dataPagamento).toLocaleString(
-                                      "pt-BR"
-                                    )}
-                                  </td>
-                                  <td className="py-2.5 px-4 font-mono font-bold text-emerald-400">
-                                    R$ {Number(log.valor || 0).toFixed(2)}
-                                  </td>
-                                  <td className="py-2.5 px-4 text-zinc-400">
-                                    {log.vencimentoAnterior
-                                      ? new Date(
-                                          log.vencimentoAnterior
-                                        ).toLocaleDateString("pt-BR", {
-                                          timeZone: "UTC",
-                                        })
-                                      : "—"}
-                                  </td>
-                                  <td className="py-2.5 px-4 text-emerald-300 font-semibold">
-                                    {log.vencimentoNovo
-                                      ? new Date(
-                                          log.vencimentoNovo
-                                        ).toLocaleDateString("pt-BR", {
-                                          timeZone: "UTC",
-                                        })
-                                      : "—"}
-                                  </td>
-                                  <td className="py-2.5 px-4 text-zinc-400">
-                                    {log.observacao || "—"}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="pt-2 flex justify-end">
+                  <div className="pt-1 flex justify-end">
                     <button
                       type="submit"
                       disabled={provisioning}
                       className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-8 py-3 rounded-xl transition shadow-[0_0_20px_rgba(16,185,129,0.25)]"
                     >
-                      Salvar Configuração Financeira
+                      Salvar Configuração de Mensalidade / Base
                     </button>
                   </div>
+
+                  <TenantInvoicesManager
+                    pin={pin}
+                    tenant={editingTenant}
+                    invoices={tenantInvoices}
+                    paymentHistory={paymentHistory}
+                    loadingHistory={loadingHistory}
+                    onRefresh={() => {
+                      fetchTenants();
+                      fetchPaymentHistory(editingTenant.id);
+                    }}
+                    showToast={showToast}
+                  />
                 </form>
               )}
 
@@ -4281,6 +4344,23 @@ export default function SysInitPage() {
             )}
           </div>
         )}
+
+        {/* ==================================================================
+         * VIEW: LEADGER WEBHOOK INTEGRATION & OUTBOX
+         * ================================================================== */}
+        {view === "leadger" && (
+          <LeadgerIntegrationPanel
+            pin={pin}
+            onEditTenant={(tenantId, tab = "finance") => {
+              const target = tenants.find((t) => t.id === tenantId);
+              if (target) {
+                handleOpenEdit(target, tab);
+              }
+            }}
+            onRefreshTenants={() => fetchTenants()}
+            showToast={showToast}
+          />
+        )}
       </div>
 
       {/* ====================================================================
@@ -4306,6 +4386,11 @@ export default function SysInitPage() {
             label: "Nova",
             icon: Plus,
             highlight: true,
+          },
+          {
+            id: "leadger",
+            label: "Leadger",
+            icon: Zap,
           },
           {
             id: "sql",

@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { getSetupPin, pushTenantSchema } from "@/lib/setup-auth";
 import { heartPrisma, ensurePostgresDatabase } from "@/lib/heart-db";
 import { getTenantPrismaClient } from "@/lib/tenant-manager";
+import {
+  ensureCurrentTenantInvoice,
+  enqueueBaseUpsertEvent,
+  toDateOnlyString,
+  toCents,
+  triggerOutboxWorkerAsync,
+} from "@/lib/leadger-webhook";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
@@ -27,19 +35,26 @@ export async function POST(request: NextRequest) {
       cnpj,
       telefone,
       logradouro,
+      endereco,
       numero,
       complemento,
       bairro,
       municipio,
+      cidade,
       uf,
       cep,
       modulos,
+      modules,
+      logo,
+      logoUrl,
       mensalidadeValor,
       mensalidadeVencimento,
+      billingDay,
       telefoneContato,
       emailContato,
       observacoes,
       seedDefaults = true,
+      syncWithLeadger = false,
     } = body;
 
     const rawDbName = databaseName || dbName || "";
@@ -122,50 +137,83 @@ export async function POST(request: NextRequest) {
     // 2. Aplica todas as tabelas do Shark (prisma/schema.prisma) no novo banco
     await pushTenantSchema(tenantDbUrl);
 
-    // 3. Registra o Tenant e o usuário Admin no banco mestre (heart)
+    // 3. Registra o Tenant, usuário Admin, fatura inicial e Outbox no banco mestre (heart)
     const hashedPassword = await bcrypt.hash(String(adminPassword), 10);
     const displayName = resolvedNomeFantasia || razaoSocial || sanitizedDbName;
+    const generatedTenantId = randomUUID();
+    const resolvedLogo = logoUrl || logo || null;
+    const resolvedValor =
+      mensalidadeValor !== undefined && mensalidadeValor !== ""
+        ? Number(mensalidadeValor)
+        : 0;
+
+    const resolvedVencimentoDate = mensalidadeVencimento
+      ? new Date(
+          String(mensalidadeVencimento).includes("T")
+            ? mensalidadeVencimento
+            : `${String(mensalidadeVencimento).split("T")[0]}T12:00:00Z`
+        )
+      : resolvedValor > 0
+      ? new Date()
+      : null;
+
+    const todayStr = toDateOnlyString(new Date());
+    const dueStr = resolvedVencimentoDate
+      ? toDateOnlyString(resolvedVencimentoDate)
+      : todayStr;
+    const resolvedBillingDay = billingDay
+      ? Math.min(31, Math.max(1, Number(billingDay)))
+      : Number(dueStr.split("-")[2]) || 10;
+    const startDate = dueStr < todayStr ? dueStr : todayStr;
+
+    const autoSync =
+      Boolean(syncWithLeadger) || process.env.LEADGER_AUTO_SYNC_NEW === "true";
 
     const result = await heartPrisma.$transaction(async (tx) => {
       const createdTenant = await tx.tenant.create({
         data: {
+          id: generatedTenantId,
           databaseName: sanitizedDbName,
           databaseUrl: tenantDbUrl,
           name: displayName,
           status: "active",
+          logoUrl: resolvedLogo,
           razaoSocial: razaoSocial || null,
           nomeFantasia: displayName,
           cnpj: cleanCnpj || null,
           telefone: telefone || telefoneContato || null,
-          logradouro: logradouro || null,
+          logradouro: logradouro || endereco || null,
           numero: numero || null,
           complemento: complemento || null,
           bairro: bairro || null,
-          municipio: municipio || null,
+          municipio: municipio || cidade || null,
           uf: uf || null,
           cep: cep || null,
-          modulos: modulos ?? {
-            emprestimos: true,
-            cheques: true,
-            parceiros: true,
-            whatsapp: true,
-            relatorios: true,
-            dashboardMobile: true,
-          },
-          mensalidadeValor:
-            mensalidadeValor !== undefined && mensalidadeValor !== ""
-              ? Number(mensalidadeValor)
-              : 0,
-          mensalidadeVencimento: mensalidadeVencimento
-            ? new Date(
-                mensalidadeVencimento.includes("T")
-                  ? mensalidadeVencimento
-                  : `${String(mensalidadeVencimento).split("T")[0]}T12:00:00Z`
-              )
-            : null,
+          modulos: modulos ??
+            modules ?? {
+              emprestimos: true,
+              cheques: true,
+              cobrancas: true,
+              parceiros: true,
+              whatsapp: true,
+              clientes: true,
+              relatorios: true,
+              dashboardMobile: true,
+            },
+          mensalidadeValor: resolvedValor,
+          mensalidadeVencimento: resolvedVencimentoDate,
+          billingDay: resolvedBillingDay,
+          contractStartDate: startDate,
+          effectiveDate: todayStr >= startDate ? todayStr : startDate,
           telefoneContato: telefoneContato || telefone || null,
-          emailContato: emailContato || normalizedEmail,
+          emailContato: (emailContato || normalizedEmail).trim().toLowerCase(),
           observacoes: observacoes || null,
+          clientExternalId: `cli-${generatedTenantId}`,
+          baseExternalId: `base-${generatedTenantId}`,
+          clientVersion: 1,
+          baseVersion: 1,
+          photoVersion: resolvedLogo ? 1 : 0,
+          leadgerSyncEnabled: autoSync,
         },
       });
 
@@ -180,8 +228,28 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return { tenant: createdTenant, adminUser: createdUser };
+      // Cria a fatura inicial se houver mensalidade > 0
+      const initialInvoice = await ensureCurrentTenantInvoice(
+        tx,
+        createdTenant
+      );
+
+      // Se a sincronização com o Leadger estiver ativa e a mensalidade for > 0, grava base.upsert na outbox
+      if (autoSync && toCents(createdTenant.mensalidadeValor) > 0 && initialInvoice) {
+        await enqueueBaseUpsertEvent(tx, createdTenant, [initialInvoice]);
+      }
+
+      return {
+        tenant: createdTenant,
+        adminUser: createdUser,
+        initialInvoice,
+      };
     });
+
+    // Dispara worker em background se enfileirou evento
+    if (autoSync && toCents(result.tenant.mensalidadeValor) > 0) {
+      triggerOutboxWorkerAsync(result.tenant.id);
+    }
 
     // 4. Sincroniza o usuário admin e configurações iniciais no banco do tenant
     try {

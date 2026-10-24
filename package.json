@@ -8,6 +8,7 @@
     "start": "node scripts/init-heart.js && next start",
     "lint": "eslint",
     "whatsapp": "node whatsapp-service.js",
+    "test:leadger": "node --env-file=.env --import tsx scripts/test-leadger-webhook.ts",
     "postinstall": "prisma generate && prisma generate --config=prisma.heart.config.ts"
   },
   "dependencies": {
